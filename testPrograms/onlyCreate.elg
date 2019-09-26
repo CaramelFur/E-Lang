@@ -7,3 +7,7 @@ hello <- (3 * 7/3+2-1 );
 
 itWorks <- true;
 
+
+check (itWorks + true) -> {
+  hello <- 33;
+};

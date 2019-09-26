@@ -4,7 +4,7 @@ namespace E_Lang.src {
     public EOperation[] operations;
 
     public override string ToString() {
-      return operations.Aggregate("Operations:", (prev, next) => prev + " " + next.ToString());
+      return operations.Aggregate("Operations:", (prev, next) => prev + "\n" + next.ToString());
     }
 
   }
@@ -60,6 +60,16 @@ namespace E_Lang.src {
 
     public override string ToString() {
       return "EAssignOperation{" + variable + " = " + content.ToString() + "}";
+    }
+  }
+
+  public class ECheckOperation : EOperation {
+    public ESolvable check;
+    public EOperation[] operations;
+
+    public override string ToString() {
+      string oppString = operations.Aggregate("operations:", (prev, next) => prev + "\n" + next.ToString());
+      return "ECheckOperation{\ncheck: " + variable + ";\n" + oppString + "\n}";
     }
   }
 }

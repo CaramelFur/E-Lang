@@ -27,7 +27,7 @@ namespace E_Lang.src {
     select new EToken { token = arrow };
 
     // Parser for types that you assign and create
-    static readonly Parser<Etype> CreateableType =
+    static readonly Parser<EType> CreateableType =
       from typeName in Parse.String("int")
       .Or(Parse.String("boolean"))
       .Or(Parse.String("string"))
@@ -51,17 +51,26 @@ namespace E_Lang.src {
     ).Or(
       Parse.String("-").Token()
     ).Text();
-
+    // Parses the () around the expression
     static readonly Parser<string> FullExpression =
       from open in Parse.Char('(').Token()
     from expression in PartExpression.Many()
     from close in Parse.Char(')').Token()
     select new String(expression.Aggregate("", (a, b) => a + b));
 
+    // Parses a solvable 
     static readonly Parser<ESolvable> ESolvable =
       from expr in Parse.Or(Word, FullExpression)
     select new ESolvable { contents = expr };
 
+    // Parse a subprogram a.k.a. a function
+    static readonly Parser<EOperation[]> ESubProgram =
+      from open in Parse.Char('{').Token()
+    from operations in EOperation.Many()
+    from close in Parse.Char('}').Token()
+    select operations.ToArray();
+
+    // Parses a create variable operation
     static readonly Parser<ECreateOperation> ECreateOperation =
       from keyword in Parse.String("create")
     from space in Space
@@ -71,6 +80,7 @@ namespace E_Lang.src {
     from semicolon in EndLine
     select new ECreateOperation { type = type, name = name };
 
+    // Parses a assign variable operation
     static readonly Parser<EAssignOperation> EAssignOperation =
       from variable in Word
     from arrow in ArrowLeft
@@ -78,8 +88,22 @@ namespace E_Lang.src {
     from semicolon in EndLine
     select new EAssignOperation { variable = variable, content = content };
 
-    static readonly Parser<EOperation> EOperation = Parse.Or<EOperation>(ECreateOperation, EAssignOperation);
+    // Parses a check statement, comparable to an if statment without an else
+    static readonly Parser<EAssignOperation> ECheckOperation =
+      from keyword in Parse.String("check")
+    from space in Space
+    from solvable in ESolvable
+    from arrow in ArrowRight
+    from operations in ESubProgram
+    select new EAssignOperation { check = solvable, operations = operations };
 
+    // Parses different types of operations
+    static readonly Parser<EOperation> EOperation = Parse
+      .Or<EOperation>(ECreateOperation)
+      .Or<EOperation>(EAssignOperation)
+      .Or<EOperation>(ECheckOperation);
+
+    // Parses the whole program
     public static Parser<EProgram> EProgram =
       from space in Parse.WhiteSpace.Many()
     from operations in EOperation.Many().End()
@@ -88,6 +112,6 @@ namespace E_Lang.src {
   }
 
   class ExpressionParser {
-    
+
   }
 }
