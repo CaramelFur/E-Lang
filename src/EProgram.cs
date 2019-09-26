@@ -13,6 +13,26 @@ namespace E_Lang.src {
 
   }
 
+  public class EToken {
+    public string token;
+
+    public override string ToString() {
+      return token;
+    }
+  }
+
+  public class EWord {
+    public string word;
+
+    public override string ToString() {
+      return word;
+    }
+  }
+
+  public class EType {
+    public string type;
+  }
+
   public class ESolvable {
     public string contents;
 

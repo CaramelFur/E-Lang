@@ -6,25 +6,42 @@ using Sprache;
 
 namespace E_Lang.src {
   public class EParser {
-    static CommentParser Comment = new CommentParser("# ", "###", "###", "\n");
-
-    static readonly Parser<string> Word = Parse.Text(
-      Parse.LetterOrDigit.XOr(Parse.Char('-')).XOr(Parse.Char('_')).Many()
-    );
+    // Base characters
     static readonly Parser<string> Space = Parse.Text(Parse.WhiteSpace.AtLeastOnce());
     static readonly Parser<char> EndLine = Parse.Token(Parse.Char(';'));
-    static readonly Parser<string> ArrowLeft = Parse.String("<-").Token().Text();
-    static readonly Parser<string> ArrowRight = Parse.String("->").Token().Text();
 
-    static readonly Parser<string> CreateableType = Parse.Text(
-      Parse.String("int")
+    // Comment parser
+    static CommentParser Comment = new CommentParser("# ", "###", "###", "\n");
+
+    // Simple word parser
+    static readonly Parser<EWord> Word =
+      from word in Parse.LetterOrDigit.XOr(Parse.Char('-')).XOr(Parse.Char('_')).Many().Text()
+    select new EWord { word = word };
+
+    // Arrow parser
+    static readonly Parser<EToken> ArrowLeft =
+      from arrow in Parse.String("<-").Token().Text()
+    select new EToken { token = arrow };
+    static readonly Parser<EToken> ArrowRight =
+      from arrow in Parse.String("->").Token().Text()
+    select new EToken { token = arrow };
+
+    // Parser for types that you assign and create
+    static readonly Parser<Etype> CreateableType =
+      from typeName in Parse.String("int")
       .Or(Parse.String("boolean"))
       .Or(Parse.String("string"))
       .Or(Parse.String("void"))
-    );
-    static readonly Parser<string> UsableType = Parse.Text(Parse.String("Function"));
-    static readonly Parser<string> Type = CreateableType.Or(UsableType);
+      .Text()
+    select new EType { type = typeName };
+    // Parser for the other types
+    static readonly Parser<EType> UsableType =
+      from typeName in Parse.String("Function").Text()
+    select new EType { type = typeName };
+    // Parser for all types
+    static readonly Parser<EType> Type = Parse.Or(CreateableType, UsableType);
 
+    // Expression parser
     static readonly Parser<string> PartExpression = Word.Or(
       Parse.String("+").Token()
     ).Or(
@@ -34,6 +51,7 @@ namespace E_Lang.src {
     ).Or(
       Parse.String("-").Token()
     ).Text();
+
     static readonly Parser<string> FullExpression =
       from open in Parse.Char('(').Token()
     from expression in PartExpression.Many()
@@ -67,5 +85,9 @@ namespace E_Lang.src {
     from operations in EOperation.Many().End()
     select new EProgram { operations = operations.ToArray() };
 
+  }
+
+  class ExpressionParser {
+    
   }
 }
