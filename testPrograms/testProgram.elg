@@ -1,0 +1,23 @@
+create boolean: itWorks;
+
+itWorks <- true;
+
+function () -> void : sayTrue <- {
+  print("hello");
+};
+
+function (int: a, int: b) -> int : test <- {
+  create int: c;
+  c <- (a + b);
+  return(c);
+};
+
+# testing comments
+
+###
+and multiline
+###
+
+check (itWorks == true) -> {
+  sayTrue();
+};

@@ -1,0 +1,27 @@
+$createableType = [int, boolean, string, void]
+$usableType = [Function]
+$type = [$createableType, $usableType]
+
+$word = [a-zA-Z, "-", "_"]
+
+$createOp = create $createableType: $word;
+
+$expressionParts = [$word, "+", "-", "*", "/", " "]
+$expression = ($expressionParts)
+$solvable = [$word, $expression]
+
+$assignOp = $word <- $solvable;
+
+$checkOp = check $solvable -> {
+  $operations
+};
+
+$functionitem = $type: $word
+$functionitems = [$functionitem...]
+
+$functionOp = function ($functionitems) -> $createableType : $word <- {
+  $operations
+};
+
+$operation = [$functionOp, $checkOp, $assignOp, $createOp]
+$operations = [$operation...]
