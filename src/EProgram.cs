@@ -31,6 +31,10 @@ namespace E_Lang.src {
 
   public class EType {
     public string type;
+
+    public override string ToString() {
+      return type;
+    }
   }
 
   public class ESolvable {
@@ -41,11 +45,13 @@ namespace E_Lang.src {
     }
   }
 
+  public 
+
   public class EOperation { }
 
   public class ECreateOperation : EOperation {
-    public string name;
-    public string type;
+    public EWord name;
+    public EType type;
 
     public override string ToString() {
       return "ECreateOperation{" + type + ": '" + name + "'}";
@@ -54,7 +60,7 @@ namespace E_Lang.src {
   }
 
   public class EAssignOperation : EOperation {
-    public string variable;
+    public EWord variable;
 
     public ESolvable content;
 
@@ -69,7 +75,7 @@ namespace E_Lang.src {
 
     public override string ToString() {
       string oppString = operations.Aggregate("operations:", (prev, next) => prev + "\n" + next.ToString());
-      return "ECheckOperation{\ncheck: " + variable + ";\n" + oppString + "\n}";
+      return "ECheckOperation{\ncheck: " + check + ";\n" + oppString + "\n}";
     }
   }
 }
