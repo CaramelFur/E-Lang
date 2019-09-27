@@ -10,11 +10,13 @@ namespace E_Lang.src
   {
     // Base characters
     static readonly Parser<string> Space = Parse.Text(Parse.WhiteSpace.AtLeastOnce());
+    static readonly Parser<char> Colon = Parse.Token(Parse.Char(':'));
+    static readonly Parser<char> Comma = Parse.Token(Parse.Char(','));
     static readonly Parser<char> EndLine = Parse.Token(Parse.Char(';'));
 
     // Comment parser
     static CommentParser Comment = new CommentParser("#", "###", "###", "\n");
-    static readonly Parser<string[]> Comments = 
+    static readonly Parser<string[]> Comments =
       from comments in Parse.Token(
           Comment.MultiLineComment
         ).Or(
@@ -80,6 +82,24 @@ namespace E_Lang.src
       from close in Parse.Char('}').Token()
       select operations.ToArray();
 
+    static readonly Parser<EFunctionArgument> EFunctionArgument =
+      from type in Type
+      from colon in Colon
+      from name in EWord
+      select new EFunctionArgument { type = type, variable = name };
+
+    static readonly Parser<EFunctionArgument> EFunctionArgumentComma =
+      from argument in EFunctionArgument
+      from comma in Comma
+      select argument;
+
+    static readonly Parser<EFunctionArgument[]> EFunctionArguments =
+      from open in Parse.Char('(').Token()
+      from firstArgument in EFunctionArgument
+      from otherArguments in EFunctionArgumentComma.Many()
+      from close in Parse.Char(')').Token()
+      select new[] { firstArgument }.Concat(otherArguments).ToArray();
+
     // Parses a create variable operation
     static readonly Parser<ECreateOperation> ECreateOperation =
       from keyword in Parse.String("create")
@@ -108,12 +128,25 @@ namespace E_Lang.src
       from semicolon in EndLine
       select new ECheckOperation { check = solvable, operations = operations };
 
+    static readonly Parser<EFunctionOperation> EFunctionOperation =
+      from keyword in Parse.String("function")
+      from space in Space
+      from arguments in EFunctionArguments
+      from rightarrow in ArrowRight
+      from type in CreateableType
+      from colon in Colon
+      from name in EWord
+      from leftarrow in ArrowLeft
+      from operations in ESubProgram
+      from semicolon in EndLine
+      select new EFunctionOperation { name = name, type = type, arguments = arguments, operations = operations };
+
     // Parses different types of operations
     static readonly Parser<EOperation> EOperation =
-      from operation in ECreateOperation
+        ECreateOperation
          .Or<EOperation>(EAssignOperation)
          .Or<EOperation>(ECheckOperation)
-      select operation;
+         .Or<EOperation>(EFunctionOperation);
 
     static readonly Parser<EOperation> EOperations =
       from comments in Comments
