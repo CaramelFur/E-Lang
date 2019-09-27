@@ -15,14 +15,7 @@ namespace E_Lang.src
     static readonly Parser<char> EndLine = Parse.Token(Parse.Char(';'));
 
     // Comment parser
-    static CommentParser Comment = new CommentParser("#", "###", "###", "\n");
-    static readonly Parser<string[]> Comments =
-      from comments in Parse.Token(
-          Comment.MultiLineComment
-        ).Or(
-          Comment.SingleLineComment.Token()
-        ).Many()
-      select comments.ToArray();
+    static readonly CommentParser Comment = new CommentParser("#", "###", "###", "\n");
 
     // Simple word parser
     static readonly Parser<string> Word = Parse.LetterOrDigit.XOr(Parse.Char('-')).XOr(Parse.Char('_')).Many().Text();
@@ -51,7 +44,7 @@ namespace E_Lang.src
       from typeName in Parse.String("Function").Text()
       select new EType { type = typeName };
     // Parser for all types
-    static readonly Parser<EType> Type = Parse.Or(CreateableType, UsableType);
+    static readonly Parser<EType> Type = CreateableType.Or(UsableType);
 
     // Expression parser
     static readonly Parser<string> PartExpression = Word.Or(
@@ -89,8 +82,8 @@ namespace E_Lang.src
       select new EFunctionArgument { type = type, variable = name };
 
     static readonly Parser<EFunctionArgument> EFunctionArgumentComma =
-      from argument in EFunctionArgument
       from comma in Comma
+      from argument in EFunctionArgument
       select argument;
 
     static readonly Parser<EFunctionArgument[]> EFunctionArguments =
@@ -121,7 +114,6 @@ namespace E_Lang.src
     // Parses a check statement, comparable to an if statment without an else
     static readonly Parser<ECheckOperation> ECheckOperation =
       from keyword in Parse.String("check")
-      from space in Space
       from solvable in ESolvable
       from arrow in ArrowRight
       from operations in ESubProgram
@@ -130,7 +122,6 @@ namespace E_Lang.src
 
     static readonly Parser<EFunctionOperation> EFunctionOperation =
       from keyword in Parse.String("function")
-      from space in Space
       from arguments in EFunctionArguments
       from rightarrow in ArrowRight
       from type in CreateableType
@@ -148,11 +139,11 @@ namespace E_Lang.src
          .Or<EOperation>(ECheckOperation)
          .Or<EOperation>(EFunctionOperation);
 
-    static readonly Parser<EOperation> EOperations =
-      from comments in Comments
-      from operations in EOperation
-      select operations;
+    static readonly Parser<EOperation> EComment =
+      from comment in Comment.MultiLineComment.Or(Comment.SingleLineComment).Token()
+      select new EOperation { };
 
+    static readonly Parser<EOperation> EOperations = EOperation.Or(EComment);
 
     // Parses the whole program
     public static Parser<EProgram> EProgram =

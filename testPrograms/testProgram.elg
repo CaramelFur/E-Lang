@@ -15,9 +15,10 @@ function (int: a, int: b) -> int : test <- {
 # testing comments
 
 ###
-and multiline
+multiline
+comment
+23254636tg$TG#$ga
 ###
-
 check (itWorks == true) -> {
   sayTrue();
 };

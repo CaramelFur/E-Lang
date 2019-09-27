@@ -68,7 +68,13 @@ namespace E_Lang.src
     }
   }
 
-  public class EOperation { }
+  public class EOperation
+  {
+    public override string ToString()
+    {
+      return "ENoOp";
+    }
+  }
 
   public class ECreateOperation : EOperation
   {
@@ -116,7 +122,13 @@ namespace E_Lang.src
     public override string ToString()
     {
       string oppString = operations.Aggregate("operations:", (prev, next) => prev + "\n" + next.ToString());
-      return "EFunction{\nname: '" + name + "'\ntype: " + type + "\narguments: (" + arguments + ");\n" + oppString + "\n}";
+      string argString = "";
+      for (int i = 0; i < arguments.Length; i++)
+      {
+        if (i != 0) argString += ", ";
+        argString += arguments[i].ToString();
+      }
+      return "EFunction{\nname: '" + name + "'\ntype: " + type + "\narguments: (" + argString + ");\n" + oppString + "\n}";
     }
   }
 }
