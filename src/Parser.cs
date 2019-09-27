@@ -4,27 +4,37 @@ using System.Linq;
 using System.Linq.Expressions;
 using Sprache;
 
-namespace E_Lang.src {
-  public class EParser {
+namespace E_Lang.src
+{
+  public class EParser
+  {
     // Base characters
     static readonly Parser<string> Space = Parse.Text(Parse.WhiteSpace.AtLeastOnce());
     static readonly Parser<char> EndLine = Parse.Token(Parse.Char(';'));
 
     // Comment parser
-    static CommentParser Comment = new CommentParser("# ", "###", "###", "\n");
+    static CommentParser Comment = new CommentParser("#", "###", "###", "\n");
+    static readonly Parser<string[]> Comments = 
+      from comments in Parse.Token(
+          Comment.MultiLineComment
+        ).Or(
+          Comment.SingleLineComment.Token()
+        ).Many()
+      select comments.ToArray();
 
     // Simple word parser
-    static readonly Parser<EWord> Word =
-      from word in Parse.LetterOrDigit.XOr(Parse.Char('-')).XOr(Parse.Char('_')).Many().Text()
-    select new EWord { word = word };
+    static readonly Parser<string> Word = Parse.LetterOrDigit.XOr(Parse.Char('-')).XOr(Parse.Char('_')).Many().Text();
+    static readonly Parser<EWord> EWord =
+      from word in Word
+      select new EWord { word = word };
 
     // Arrow parser
     static readonly Parser<EToken> ArrowLeft =
       from arrow in Parse.String("<-").Token().Text()
-    select new EToken { token = arrow };
+      select new EToken { token = arrow };
     static readonly Parser<EToken> ArrowRight =
       from arrow in Parse.String("->").Token().Text()
-    select new EToken { token = arrow };
+      select new EToken { token = arrow };
 
     // Parser for types that you assign and create
     static readonly Parser<EType> CreateableType =
@@ -33,11 +43,11 @@ namespace E_Lang.src {
       .Or(Parse.String("string"))
       .Or(Parse.String("void"))
       .Text()
-    select new EType { type = typeName };
+      select new EType { type = typeName };
     // Parser for the other types
     static readonly Parser<EType> UsableType =
       from typeName in Parse.String("Function").Text()
-    select new EType { type = typeName };
+      select new EType { type = typeName };
     // Parser for all types
     static readonly Parser<EType> Type = Parse.Or(CreateableType, UsableType);
 
@@ -54,64 +64,73 @@ namespace E_Lang.src {
     // Parses the () around the expression
     static readonly Parser<string> FullExpression =
       from open in Parse.Char('(').Token()
-    from expression in PartExpression.Many()
-    from close in Parse.Char(')').Token()
-    select new String(expression.Aggregate("", (a, b) => a + b));
+      from expression in PartExpression.Many()
+      from close in Parse.Char(')').Token()
+      select new String(expression.Aggregate("", (a, b) => a + b));
 
     // Parses a solvable 
     static readonly Parser<ESolvable> ESolvable =
       from expr in Parse.Or(Word, FullExpression)
-    select new ESolvable { contents = expr };
+      select new ESolvable { contents = expr };
 
     // Parse a subprogram a.k.a. a function
     static readonly Parser<EOperation[]> ESubProgram =
       from open in Parse.Char('{').Token()
-    from operations in EOperation.Many()
-    from close in Parse.Char('}').Token()
-    select operations.ToArray();
+      from operations in EOperation.Many()
+      from close in Parse.Char('}').Token()
+      select operations.ToArray();
 
     // Parses a create variable operation
     static readonly Parser<ECreateOperation> ECreateOperation =
       from keyword in Parse.String("create")
-    from space in Space
-    from type in CreateableType
-    from colon in Parse.Token(Parse.Char(':'))
-    from name in Word
-    from semicolon in EndLine
-    select new ECreateOperation { type = type, name = name };
+      from space in Space
+      from type in CreateableType
+      from colon in Parse.Token(Parse.Char(':'))
+      from name in EWord
+      from semicolon in EndLine
+      select new ECreateOperation { type = type, name = name };
 
     // Parses a assign variable operation
     static readonly Parser<EAssignOperation> EAssignOperation =
-      from variable in Word
-    from arrow in ArrowLeft
-    from content in ESolvable
-    from semicolon in EndLine
-    select new EAssignOperation { variable = variable, content = content };
+      from variable in EWord
+      from arrow in ArrowLeft
+      from content in ESolvable
+      from semicolon in EndLine
+      select new EAssignOperation { variable = variable, content = content };
 
     // Parses a check statement, comparable to an if statment without an else
-    static readonly Parser<EAssignOperation> ECheckOperation =
+    static readonly Parser<ECheckOperation> ECheckOperation =
       from keyword in Parse.String("check")
-    from space in Space
-    from solvable in ESolvable
-    from arrow in ArrowRight
-    from operations in ESubProgram
-    select new EAssignOperation { check = solvable, operations = operations };
+      from space in Space
+      from solvable in ESolvable
+      from arrow in ArrowRight
+      from operations in ESubProgram
+      from semicolon in EndLine
+      select new ECheckOperation { check = solvable, operations = operations };
 
     // Parses different types of operations
-    static readonly Parser<EOperation> EOperation = Parse
-      .Or<EOperation>(ECreateOperation)
-      .Or<EOperation>(EAssignOperation)
-      .Or<EOperation>(ECheckOperation);
+    static readonly Parser<EOperation> EOperation =
+      from operation in ECreateOperation
+         .Or<EOperation>(EAssignOperation)
+         .Or<EOperation>(ECheckOperation)
+      select operation;
+
+    static readonly Parser<EOperation> EOperations =
+      from comments in Comments
+      from operations in EOperation
+      select operations;
+
 
     // Parses the whole program
     public static Parser<EProgram> EProgram =
       from space in Parse.WhiteSpace.Many()
-    from operations in EOperation.Many().End()
-    select new EProgram { operations = operations.ToArray() };
+      from operations in EOperations.Many().End()
+      select new EProgram { operations = operations.ToArray() };
 
   }
 
-  class ExpressionParser {
+  class ExpressionParser
+  {
 
   }
 }

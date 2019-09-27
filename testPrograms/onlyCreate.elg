@@ -4,9 +4,15 @@ create boolean: itWorks;
 create int: hello;
 
 hello <- (3 * 7/3+2-1 );
+###
+multiline
+comment
+23254636tg$TG#$ga
+###
 
 itWorks <- true;
 
+# adis
 
 check (itWorks + true) -> {
   hello <- 33;

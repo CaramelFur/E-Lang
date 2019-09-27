@@ -1831,11 +1831,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/rubikscraft/Documents/VSCode/Profielwerkstuk/E-Lang/E-Lang.csproj",
+      "projectUniqueName": "/home/rubikscraft/Documents/VSCode/E-Lang/E-Lang.csproj",
       "projectName": "E-Lang",
-      "projectPath": "/home/rubikscraft/Documents/VSCode/Profielwerkstuk/E-Lang/E-Lang.csproj",
+      "projectPath": "/home/rubikscraft/Documents/VSCode/E-Lang/E-Lang.csproj",
       "packagesPath": "/home/rubikscraft/.nuget/packages/",
-      "outputPath": "/home/rubikscraft/Documents/VSCode/Profielwerkstuk/E-Lang/obj/",
+      "outputPath": "/home/rubikscraft/Documents/VSCode/E-Lang/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/home/rubikscraft/.nuget/NuGet/NuGet.Config"
