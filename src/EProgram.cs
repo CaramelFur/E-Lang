@@ -45,7 +45,6 @@ namespace E_Lang.src {
     }
   }
 
-  public 
 
   public class EOperation { }
 
