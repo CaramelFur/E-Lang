@@ -16,7 +16,9 @@ namespace E_Lang
       {
         //var test = EParser.Test();
 
-        var test = EParser.EProgram.Parse(input);
+        EProgram test = EParser.EProgram.Parse(input);
+        Interpreter interpreter = new Interpreter();
+        interpreter.Run(test);
         Console.WriteLine(test);
       }
       catch (ParseException e)
