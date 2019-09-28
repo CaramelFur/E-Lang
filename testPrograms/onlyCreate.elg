@@ -13,14 +13,18 @@ comment
 
 itWorks <- true;
 
+{3} -> print;
 
 # adis
+
+function () -> int : set <- {
+};
 
 function (int: a, int: b) -> int : set <- {
   hello <- 22;
 };
 
-check (itWorks + true) -> {
+check {itWorks + true} -> {
   hello <- 33;
 };
 

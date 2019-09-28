@@ -1,0 +1,9 @@
+create int: a;
+
+a <- 1;
+
+{a} -> log;
+
+a <- a + 1;
+
+{a} -> log;

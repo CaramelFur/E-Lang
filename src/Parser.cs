@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using Sprache;
 
 namespace E_Lang.src
@@ -9,16 +7,30 @@ namespace E_Lang.src
   public class EParser
   {
     // Base characters
-    static readonly Parser<string> Space = Parse.Text(Parse.WhiteSpace.AtLeastOnce());
-    static readonly Parser<char> Colon = Parse.Token(Parse.Char(':'));
-    static readonly Parser<char> Comma = Parse.Token(Parse.Char(','));
-    static readonly Parser<char> EndLine = Parse.Token(Parse.Char(';'));
+    public static readonly Parser<string> Space = Parse.Text(Parse.WhiteSpace.AtLeastOnce());
+    public static readonly Parser<char> Colon = Parse.Token(Parse.Char(':'));
+    public static readonly Parser<char> Comma = Parse.Token(Parse.Char(','));
+    public static readonly Parser<char> EndLine = Parse.Token(Parse.Char(';'));
+
+    public static readonly Parser<char> BraceOpen = Parse.Token(Parse.Char('{'));
+    public static readonly Parser<char> BraceClose = Parse.Token(Parse.Char('}'));
+    public static readonly Parser<char> RoundBraceOpen = Parse.Token(Parse.Char('('));
+    public static readonly Parser<char> RoundBraceClose = Parse.Token(Parse.Char(')'));
+    public static readonly Parser<char> BracketOpen = Parse.Token(Parse.Char('['));
+    public static readonly Parser<char> BracketClose = Parse.Token(Parse.Char(']'));
+
+    public static readonly Parser<string> Word = Parse
+      .LetterOrDigit
+      .XOr(
+        Parse.Char('-')
+      ).XOr(
+        Parse.Char('_')
+      ).Many().Text();
 
     // Comment parser
     static readonly CommentParser Comment = new CommentParser("#", "###", "###", "\n");
 
     // Simple word parser
-    static readonly Parser<string> Word = Parse.LetterOrDigit.XOr(Parse.Char('-')).XOr(Parse.Char('_')).Many().Text();
     static readonly Parser<EWord> EWord =
       from word in Word
       select new EWord { word = word };
@@ -46,33 +58,11 @@ namespace E_Lang.src
     // Parser for all types
     static readonly Parser<EType> Type = CreateableType.Or(UsableType);
 
-    // Expression parser
-    static readonly Parser<string> PartExpression = Word.Or(
-      Parse.String("+").Token()
-    ).Or(
-      Parse.String("/").Token()
-    ).Or(
-      Parse.String("*").Token()
-    ).Or(
-      Parse.String("-").Token()
-    ).Text();
-    // Parses the () around the expression
-    static readonly Parser<string> FullExpression =
-      from open in Parse.Char('(').Token()
-      from expression in PartExpression.Many()
-      from close in Parse.Char(')').Token()
-      select new String(expression.Aggregate("", (a, b) => a + b));
-
-    // Parses a solvable 
-    static readonly Parser<ESolvable> ESolvable =
-      from expr in Parse.Or(Word, FullExpression)
-      select new ESolvable { contents = expr };
+    public static Parser<ESolvable> ESolvable = ExpressionParser.Expression;
 
     // Parse a subprogram a.k.a. a function
     static readonly Parser<EOperation[]> ESubProgram =
-      from open in Parse.Char('{').Token()
-      from operations in EOperation.Many()
-      from close in Parse.Char('}').Token()
+      from operations in Parse.Ref(() => EOperation).Many().Contained(BraceOpen, BraceClose)
       select operations.ToArray();
 
     static readonly Parser<EFunctionArgument> EFunctionArgument =
@@ -81,17 +71,19 @@ namespace E_Lang.src
       from name in EWord
       select new EFunctionArgument { type = type, variable = name };
 
-    static readonly Parser<EFunctionArgument> EFunctionArgumentComma =
-      from comma in Comma
-      from argument in EFunctionArgument
-      select argument;
-
     static readonly Parser<EFunctionArgument[]> EFunctionArguments =
-      from open in Parse.Char('(').Token()
-      from firstArgument in EFunctionArgument
-      from otherArguments in EFunctionArgumentComma.Many()
-      from close in Parse.Char(')').Token()
-      select new[] { firstArgument }.Concat(otherArguments).ToArray();
+      from arguments in EFunctionArgument
+        .DelimitedBy(Comma)
+        .Optional()
+        .Contained(RoundBraceOpen, RoundBraceClose)
+      select arguments.IsDefined ? arguments.Get().ToArray() : new src.EFunctionArgument[] { };
+
+    static readonly Parser<ESolvable[]> ECallArguments =
+      from arguments in ESolvable
+        .DelimitedBy(Comma)
+        .Optional()
+        .Contained(BraceOpen, BraceClose)
+      select arguments.IsDefined ? arguments.Get().ToArray() : new src.ESolvable[] { };
 
     // Parses a create variable operation
     static readonly Parser<ECreateOperation> ECreateOperation =
@@ -114,7 +106,7 @@ namespace E_Lang.src
     // Parses a check statement, comparable to an if statment without an else
     static readonly Parser<ECheckOperation> ECheckOperation =
       from keyword in Parse.String("check")
-      from solvable in ESolvable
+      from solvable in ESolvable.Contained(BraceOpen, BraceClose)
       from arrow in ArrowRight
       from operations in ESubProgram
       from semicolon in EndLine
@@ -132,18 +124,29 @@ namespace E_Lang.src
       from semicolon in EndLine
       select new EFunctionOperation { name = name, type = type, arguments = arguments, operations = operations };
 
+    static readonly Parser<ECallOperation> ECallOperation =
+      from arguments in ECallArguments
+      from arrow in ArrowRight
+      from word in EWord
+      from semicolon in EndLine
+      select new ECallOperation { callFunc = word, arguments = arguments };
+
     // Parses different types of operations
     static readonly Parser<EOperation> EOperation =
         ECreateOperation
          .Or<EOperation>(EAssignOperation)
-         .Or<EOperation>(ECheckOperation)
-         .Or<EOperation>(EFunctionOperation);
+         .Or(ECheckOperation)
+         .Or(EFunctionOperation)
+         .Or(ECallOperation);
 
     static readonly Parser<EOperation> EComment =
       from comment in Comment.MultiLineComment.Or(Comment.SingleLineComment).Token()
       select new EOperation { };
 
-    static readonly Parser<EOperation> EOperations = EOperation.Or(EComment);
+    static readonly Parser<EOperation> EOperations =
+      from comment in EComment.Many().Optional()
+      from operation in EOperation
+      select operation;
 
     // Parses the whole program
     public static Parser<EProgram> EProgram =
@@ -151,10 +154,37 @@ namespace E_Lang.src
       from operations in EOperations.Many().End()
       select new EProgram { operations = operations.ToArray() };
 
+    public static string Test()
+    {
+      //return ESolvable.End().Parse("4").ToString();
+      //return EProgram.Parse("poop();").ToString();
+      return ECheckOperation.End().Parse("check (itWorks + true) -> {};").ToString();
+    }
+
   }
 
   class ExpressionParser
   {
+    // Expression parser
+    static readonly Parser<string> PartExpression = EParser.Word.Or(
+      Parse.String("+").Token()
+    ).Or(
+      Parse.String("/").Token()
+    ).Or(
+      Parse.String("*").Token()
+    ).Or(
+      Parse.String("-").Token()
+    ).Or(
+      Parse.String("(").Token()
+    ).Or(
+      Parse.String(")").Token()
+    ).Text();
+
+    public static readonly Parser<ESolvable> Expression =
+      from expression in PartExpression.Many()
+      select new ESolvable { contents = expression.Aggregate("", (a, b) => a + b) };
+
+
 
   }
 }

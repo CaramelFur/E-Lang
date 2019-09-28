@@ -12,11 +12,6 @@ namespace E_Lang.src
 
   }
 
-  public class EFunction
-  {
-
-  }
-
   public class EToken
   {
     public string token;
@@ -103,7 +98,7 @@ namespace E_Lang.src
   public class ECheckOperation : EOperation
   {
     public ESolvable check;
-    public EOperation[] operations;
+    public EOperation[] operations = { };
 
     public override string ToString()
     {
@@ -114,10 +109,10 @@ namespace E_Lang.src
 
   public class EFunctionOperation : EOperation
   {
-    public EFunctionArgument[] arguments;
+    public EFunctionArgument[] arguments = { };
     public EType type;
     public EWord name;
-    public EOperation[] operations;
+    public EOperation[] operations = { };
 
     public override string ToString()
     {
@@ -128,7 +123,24 @@ namespace E_Lang.src
         if (i != 0) argString += ", ";
         argString += arguments[i].ToString();
       }
-      return "EFunction{\nname: '" + name + "'\ntype: " + type + "\narguments: (" + argString + ");\n" + oppString + "\n}";
+      return "EFunction{\nname: '" + name + "'\ntype: " + type + "\narguments: (" + argString + ")\n" + oppString + "\n}";
+    }
+  }
+
+  public class ECallOperation : EOperation
+  {
+    public EWord callFunc;
+    public ESolvable[] arguments = { };
+
+    public override string ToString()
+    {
+      string argString = "";
+      for (int i = 0; i < arguments.Length; i++)
+      {
+        if (i != 0) argString += ", ";
+        argString += arguments[i].ToString();
+      }
+      return "ECall{function: " + callFunc + ", arguments: (" + argString + ")}";
     }
   }
 }
