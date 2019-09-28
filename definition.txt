@@ -17,7 +17,7 @@ $checkOp = check $solvable -> {
 };
 
 $functionitem = $type: $word
-$functionitems = [$functionitem...]
+$functionitems = [$functionitem,...]
 
 $functionOp = function ($functionitems) -> $createableType : $word <- {
   $operations
@@ -25,3 +25,6 @@ $functionOp = function ($functionitems) -> $createableType : $word <- {
 
 $operation = [$functionOp, $checkOp, $assignOp, $createOp]
 $operations = [$operation...]
+
+$callItems = [$solvable,...]
+$callOp = $word($callItems);
