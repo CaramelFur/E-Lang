@@ -47,9 +47,9 @@ namespace E_Lang.src
     // Parser for types that you assign and create
     static readonly Parser<EType> CreateableType =
       from typeName in Parse.String("int")
-      .Or(Parse.String("boolean"))
+      /* .Or(Parse.String("boolean"))
       .Or(Parse.String("string"))
-      .Or(Parse.String("void"))
+      .Or(Parse.String("void"))*/
       .Text()
       select new EType { type = typeName };
     // Parser for the other types
@@ -80,11 +80,13 @@ namespace E_Lang.src
       select arguments.IsDefined ? arguments.Get().ToArray() : new src.EFunctionArgument[] { };
 
     static readonly Parser<ESolvable[]> ECallArguments =
-      from arguments in ESolvable
-        .DelimitedBy(Comma)
-        .Optional()
-        .Contained(BraceOpen, BraceClose)
-      select arguments.IsDefined ? arguments.Get().ToArray() : new src.ESolvable[] { };
+      ESolvable
+      .DelimitedBy(Comma)
+      .Optional().Contained(
+      BraceOpen,
+      BraceClose)
+      .Select(solvable => solvable.IsDefined ? solvable.Get().ToArray() : new src.ESolvable[] { });
+
 
     // Parses a create variable operation
     static readonly Parser<ECreateOperation> ECreateOperation =
@@ -125,20 +127,27 @@ namespace E_Lang.src
       from semicolon in EndLine
       select new EFunctionOperation { name = name, type = type, arguments = arguments, operations = operations };
 
-    static readonly Parser<ECallOperation> ECallOperation =
+    public static readonly Parser<ECallOperation> ECallOperation =
       from arguments in ECallArguments
       from arrow in ArrowRight
       from word in EWord
+      from assign in (
+        from secondArrow in ArrowRight
+        from variable in EWord
+        select variable
+      ).Optional()
       from semicolon in EndLine
-      select new ECallOperation { callFunc = word, arguments = arguments };
+      select assign.IsDefined ?
+        new ECallOperation { callFunc = word, arguments = arguments, setVariable = assign.Get(), alsoSet = true } :
+        new ECallOperation { callFunc = word, arguments = arguments };
 
     // Parses different types of operations
     static readonly Parser<EOperation> EOperation =
         ECreateOperation
          .Or<EOperation>(EAssignOperation)
+         .Or(ECallOperation)
          .Or(ECheckOperation)
-         .Or(EFunctionOperation)
-         .Or(ECallOperation);
+         .Or(EFunctionOperation);
 
     static readonly Parser<EOperation> EComment =
       from comment in Comment.MultiLineComment.Or(Comment.SingleLineComment).Token()
@@ -166,47 +175,47 @@ namespace E_Lang.src
 
   class ESolvableParser
   {
-    static Parser<ExpressionType> Operator(string op, ExpressionType opType)
+    static Parser<ESOperator> Operator(string op, ExpressionType opType)
     {
-      return Parse.String(op).Token().Return(opType);
+      return Parse.String(op).Token().Return(new ESOperator { type = opType, op = op });
     }
 
-    static readonly Parser<ExpressionType> Add = Operator("+", ExpressionType.AddChecked);
-    static readonly Parser<ExpressionType> Subtract = Operator("-", ExpressionType.SubtractChecked);
-    static readonly Parser<ExpressionType> Multiply = Operator("*", ExpressionType.MultiplyChecked);
-    static readonly Parser<ExpressionType> Divide = Operator("/", ExpressionType.Divide);
+    static readonly Parser<ESOperator> Add = Operator("+", ExpressionType.AddChecked);
+    static readonly Parser<ESOperator> Subtract = Operator("-", ExpressionType.SubtractChecked);
+    static readonly Parser<ESOperator> Multiply = Operator("*", ExpressionType.MultiplyChecked);
+    static readonly Parser<ESOperator> Divide = Operator("/", ExpressionType.Divide);
 
-    static readonly Parser<Expression> ESNumber =
+    static readonly Parser<ESNumber> Number =
       (
         from dec in Parse.Decimal.Token()
-        select Expression.Constant(decimal.Parse(dec))
+        select new ESNumber(decimal.Parse(dec))
       ).Named("number");
 
-    static readonly Parser<Expression> ESVariable =
+    static readonly Parser<ESVariable> Variable =
       from word in EParser.Word
-      select Expression.Variable(typeof(decimal), word);
+      select new ESVariable(word);
 
-    static readonly Parser<Expression> ESSubSolvable =
+    static readonly Parser<ESExpression> Expression =
       (
         (
           from lparen in EParser.BraceOpen
-          from expr in Parse.Ref(() => ESAddSubtract)
+          from expr in Parse.Ref(() => AddSubtract)
           from rparen in EParser.BraceClose
           select expr
-        ).Named("expression")
-        .XOr(ESNumber)
-        .XOr(ESVariable)
+        )
+        .XOr(Number)
+        .XOr(Variable)
       ).Token();
 
 
-    static readonly Parser<Expression> ESMultiplyDivide = Parse.ChainOperator(Multiply.Or(Divide), ESSubSolvable, Expression.MakeBinary);
+    static readonly Parser<ESExpression> MultiplyDivide = Parse.ChainOperator(Multiply.Or(Divide), Expression, ESExpression.CombineExpression);
 
-    static readonly Parser<Expression> ESAddSubtract = Parse.ChainOperator(Add.Or(Subtract), ESMultiplyDivide, Expression.MakeBinary);
+    static readonly Parser<ESExpression> AddSubtract = Parse.ChainOperator(Add.Or(Subtract), MultiplyDivide, ESExpression.CombineExpression);
 
-    public static Parser<ESolvable> ESolvable = ESAddSubtract.Select(solvable => new ESolvable { contents = solvable });
+    public static Parser<ESolvable> ESolvable = AddSubtract.Select(solvable => new ESolvable { expression = solvable });
 
-    public static readonly Parser<Func<decimal>> Lambda =
-        ESAddSubtract.End().Select(body => Expression.Lambda<Func<decimal>>(body).Compile());
+    public static readonly Parser<ESExpression> Lambda =
+        AddSubtract.End();
 
   }
 }

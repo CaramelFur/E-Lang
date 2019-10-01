@@ -1,9 +1,18 @@
-create int: a;
+create int: A;
+create int: B;
+A <- 1;
+B <- 32;
 
-a <- 1;
+function (int: a, int: b) -> int : add <- {
+  create int: c;
+  c <- a + b;
+  {c} -> log;
+};
 
-{4} -> log;
+create int: C;
 
-a <- 3;
+C <- 2;
 
-{a} -> log;
+{A, B} -> add -> C;
+
+{C} -> log;

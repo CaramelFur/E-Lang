@@ -47,18 +47,9 @@ namespace E_Lang.src
 
     public override EVariable Exec(EScope scope)
     {
-      string[] vars = scope.GetVariables();
-      if (vars.Contains(variable.ToString()))
-      {
-        EVariable toUpdate = scope.Get(variable.ToString());
-        toUpdate.Assign(content);
-        return toUpdate;
-      }
-      else
-      {
-        throw new Exception("Variable " + variable + " does not exist!");
-      }
-      
+      EVariable toUpdate = scope.Get(variable.ToString());
+      toUpdate.Assign(content.Solve(scope));
+      return toUpdate;
     }
   }
 
@@ -109,6 +100,8 @@ namespace E_Lang.src
   {
     public EWord callFunc;
     public ESolvable[] arguments = { };
+    public EWord setVariable;
+    public bool alsoSet = false;
 
     public override string ToString()
     {
@@ -118,7 +111,8 @@ namespace E_Lang.src
         if (i != 0) argString += ", ";
         argString += arguments[i].ToString();
       }
-      return "ECall{function: " + callFunc + ", arguments: (" + argString + ")}";
+      if (!alsoSet) return "ECall{function: " + callFunc + ", arguments: (" + argString + ")}";
+      else return "ECallAndAssign{function: " + callFunc + ", arguments: (" + argString + "), assign: " + setVariable + "}";
     }
 
     public override EVariable Exec(EScope scope)
@@ -128,7 +122,15 @@ namespace E_Lang.src
 
       EFunction toRun = scope.GetFunction(callFunc.ToString());
 
-      return toRun.Exec(scope, arguments);
+      EVariable output = toRun.Exec(scope, arguments);
+
+      if (alsoSet)
+      {
+        EVariable toUpdate = scope.Get(setVariable.ToString());
+        toUpdate.Assign(output.value);
+      }
+
+      return output;
     }
   }
 

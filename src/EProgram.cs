@@ -48,12 +48,12 @@ namespace E_Lang.src
 
       EScope lowerScope = scope.GetChild();
 
-      for (int i = 0; i < operations.Length; i++)
+      for (int i = 0; i < arguments.Length; i++)
       {
         string argname = arguments[i].variable.ToString();
         EType argtype = arguments[i].type;
 
-        EVariable solved = EVariable.New(argtype).Assign(args[i]);
+        EVariable solved = EVariable.New(argtype).Assign(args[i].Solve(scope));
         scope.Set(argname, solved);
       }
 

@@ -13,28 +13,36 @@ namespace E_Lang
   {
     static void Main()
     {
-      string input = File.ReadAllText("./testPrograms/shouldwork.elg", Encoding.UTF8);
+
       try
       {
         //var test = EParser.Test();
 
-        /* EProgram test = EParser.EProgram.Parse(input);
-        Interpreter interpreter = new Interpreter();
-        interpreter.Run(test);*/
-        Console.WriteLine("a");
-        var expr = ESolvableParser.ESolvable.End().Parse("3 +3 + a").contents;
-        Console.WriteLine("a");
-        var lamb = Expression.Lambda<Func<decimal>>(expr, new ParameterExpression[] {
-          Expression.Parameter(typeof(decimal), "a")
-        });
-        var compiled = lamb.Compile();
-        Console.WriteLine(lamb);
-        Console.WriteLine(expr);
+        Prog();
+        //Test();
+
       }
       catch (ParseException e)
       {
         Console.WriteLine(e.ToString());
       }
+
+    }
+
+    static void Prog()
+    {
+      string input = File.ReadAllText("./testPrograms/shouldwork.elg", Encoding.UTF8);
+      EProgram test = EParser.EProgram.Parse(input);
+      Interpreter interpreter = new Interpreter();
+      interpreter.Run(test);
+      //Console.WriteLine(test);
+    }
+
+    static void Test()
+    {
+      var test = EParser.ECallOperation.End().Parse("a -> hi;");
+
+      Console.WriteLine(test);
 
     }
   }
