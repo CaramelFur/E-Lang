@@ -1,18 +1,16 @@
-create int: A;
-create int: B;
-A <- 1;
-B <- 32;
+create int: a;
 
-function (int: a, int: b) -> int : add <- {
-  create int: c;
-  c <- a + b;
-  {c} -> log;
+a <- 10000;
+
+{a} -> log;
+
+function () -> int : loop <- {
+  check {a} -> {
+    a <- a - 1;
+    {a} -> log;
+    {} -> loop;
+  };
+  
 };
 
-create int: C;
-
-C <- 2;
-
-{A, B} -> add -> C;
-
-{C} -> log;
+{} -> loop;

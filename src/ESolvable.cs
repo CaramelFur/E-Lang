@@ -14,7 +14,7 @@ namespace E_Lang.src
 
     public override string ToString()
     {
-      return expression.ToString();
+      return "ESolvable[" + expression.ToString() + "]";
     }
   }
 
@@ -37,7 +37,7 @@ namespace E_Lang.src
 
     public override string ToString()
     {
-      return op;
+      return "ESOperator[" + op + "]";
     }
   }
 
@@ -76,7 +76,7 @@ namespace E_Lang.src
 
     public override string ToString()
     {
-      return first.ToString() + " " + op.ToString() + " " + second.ToString();
+      return "ESDoubleExpression[" + first.ToString() + " " + op.ToString() + " " + second.ToString() + "]";
     }
   }
 
@@ -96,7 +96,7 @@ namespace E_Lang.src
 
     public override string ToString()
     {
-      return number.ToString();
+      return "ESNumber[" + number.ToString() + "]";
     }
   }
 
@@ -116,7 +116,7 @@ namespace E_Lang.src
 
     public override string ToString()
     {
-      return name;
+      return "ESVariable[" + name + "]";
     }
   }
 

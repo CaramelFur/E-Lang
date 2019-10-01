@@ -18,6 +18,7 @@ namespace E_Lang.src
   {
     public EFunctionArgument[] arguments = { };
     public EType type;
+    public EWord name;
     public EOperation[] operations = { };
 
     public EFunction() { }
@@ -27,6 +28,7 @@ namespace E_Lang.src
       arguments = operation.arguments;
       type = operation.type;
       operations = operation.operations;
+      name = operation.name;
     }
 
     public override string ToString()
@@ -44,7 +46,7 @@ namespace E_Lang.src
     public EVariable Exec(EScope scope, ESolvable[] args)
     {
       // TODO: output type casting
-      if (args.Length != arguments.Length) throw new Exception("Wrong amount of args");
+      if (args.Length != arguments.Length) throw new Exception("Wrong amount of args for function " + name);
 
       EScope lowerScope = scope.GetChild();
 

@@ -26,7 +26,7 @@ namespace E_Lang.src
         Parse.Char('-')
       ).XOr(
         Parse.Char('_')
-      ).Many().Text();
+      ).AtLeastOnce().Text();
 
     // Comment parser
     static readonly CommentParser Comment = new CommentParser("#", "###", "###", "\n");
@@ -80,12 +80,13 @@ namespace E_Lang.src
       select arguments.IsDefined ? arguments.Get().ToArray() : new src.EFunctionArgument[] { };
 
     static readonly Parser<ESolvable[]> ECallArguments =
-      ESolvable
-      .DelimitedBy(Comma)
-      .Optional().Contained(
-      BraceOpen,
-      BraceClose)
-      .Select(solvable => solvable.IsDefined ? solvable.Get().ToArray() : new src.ESolvable[] { });
+      from open in BraceOpen
+      from solvable in
+        ESolvable
+        .DelimitedBy(Comma)
+        .Optional()
+      from close in BraceClose
+      select solvable.IsDefined ? solvable.Get().ToArray() : new src.ESolvable[] { };
 
 
     // Parses a create variable operation
@@ -141,13 +142,19 @@ namespace E_Lang.src
         new ECallOperation { callFunc = word, arguments = arguments, setVariable = assign.Get(), alsoSet = true } :
         new ECallOperation { callFunc = word, arguments = arguments };
 
+    static readonly Parser<EExpressionOperation> EExpressionOperation =
+      from solvable in ESolvable
+      from semicolon in EndLine
+      select new EExpressionOperation { expression = solvable };
+
     // Parses different types of operations
     static readonly Parser<EOperation> EOperation =
         ECreateOperation
          .Or<EOperation>(EAssignOperation)
          .Or(ECallOperation)
          .Or(ECheckOperation)
-         .Or(EFunctionOperation);
+         .Or(EFunctionOperation)
+         .Or(EExpressionOperation);
 
     static readonly Parser<EOperation> EComment =
       from comment in Comment.MultiLineComment.Or(Comment.SingleLineComment).Token()

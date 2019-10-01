@@ -16,6 +16,21 @@ namespace E_Lang.src
     }
   }
 
+  public class EExpressionOperation : EOperation
+  {
+    public ESolvable expression;
+
+    public override string ToString()
+    {
+      return "EExpressionOperation{" + expression + "}";
+    }
+
+    public override EVariable Exec(EScope scope)
+    {
+      return new EVariable { value = expression.Solve(scope) };
+    }
+  }
+
   public class ECreateOperation : EOperation
   {
     public EWord name;
@@ -66,6 +81,14 @@ namespace E_Lang.src
 
     public override EVariable Exec(EScope scope)
     {
+      decimal solved = check.Solve(scope);
+
+      if (solved != 0)
+      {
+        EProgram toRun = new EProgram { operations = operations };
+        EScope subScope = scope.GetChild();
+        return Interpreter.Run(toRun, subScope);
+      }
       return new EVariable();
     }
   }
@@ -111,8 +134,8 @@ namespace E_Lang.src
         if (i != 0) argString += ", ";
         argString += arguments[i].ToString();
       }
-      if (!alsoSet) return "ECall{function: " + callFunc + ", arguments: (" + argString + ")}";
-      else return "ECallAndAssign{function: " + callFunc + ", arguments: (" + argString + "), assign: " + setVariable + "}";
+      if (!alsoSet) return "ECall{function: " + callFunc + ", arguments: " + "(" + argString + ")}";
+      else return "ECallAndAssign{function: " + callFunc + ", arguments: " + "(" + argString + "), assign: " + setVariable + "}";
     }
 
     public override EVariable Exec(EScope scope)

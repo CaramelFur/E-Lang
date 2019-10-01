@@ -33,9 +33,10 @@ namespace E_Lang
     {
       string input = File.ReadAllText("./testPrograms/shouldwork.elg", Encoding.UTF8);
       EProgram test = EParser.EProgram.Parse(input);
+      //Console.WriteLine(test);
       Interpreter interpreter = new Interpreter();
       interpreter.Run(test);
-      //Console.WriteLine(test);
+      //
     }
 
     static void Test()
