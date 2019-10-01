@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Linq.Expressions;
 using Sprache;
 
 namespace E_Lang.src
@@ -58,7 +59,7 @@ namespace E_Lang.src
     // Parser for all types
     static readonly Parser<EType> Type = CreateableType.Or(UsableType);
 
-    public static Parser<ESolvable> ESolvable = ExpressionParser.Expression;
+    public static Parser<ESolvable> ESolvable = Parse.Ref(() => ESolvableParser.ESolvable);
 
     // Parse a subprogram a.k.a. a function
     static readonly Parser<EOperation[]> ESubProgram =
@@ -163,28 +164,49 @@ namespace E_Lang.src
 
   }
 
-  class ExpressionParser
+  class ESolvableParser
   {
-    // Expression parser
-    static readonly Parser<string> PartExpression = EParser.Word.Or(
-      Parse.String("+").Token()
-    ).Or(
-      Parse.String("/").Token()
-    ).Or(
-      Parse.String("*").Token()
-    ).Or(
-      Parse.String("-").Token()
-    ).Or(
-      Parse.String("(").Token()
-    ).Or(
-      Parse.String(")").Token()
-    ).Text();
+    static Parser<ExpressionType> Operator(string op, ExpressionType opType)
+    {
+      return Parse.String(op).Token().Return(opType);
+    }
 
-    public static readonly Parser<ESolvable> Expression =
-      from expression in PartExpression.Many()
-      select new ESolvable { contents = expression.Aggregate("", (a, b) => a + b) };
+    static readonly Parser<ExpressionType> Add = Operator("+", ExpressionType.AddChecked);
+    static readonly Parser<ExpressionType> Subtract = Operator("-", ExpressionType.SubtractChecked);
+    static readonly Parser<ExpressionType> Multiply = Operator("*", ExpressionType.MultiplyChecked);
+    static readonly Parser<ExpressionType> Divide = Operator("/", ExpressionType.Divide);
+
+    static readonly Parser<Expression> ESNumber =
+      (
+        from dec in Parse.Decimal.Token()
+        select Expression.Constant(decimal.Parse(dec))
+      ).Named("number");
+
+    static readonly Parser<Expression> ESVariable =
+      from word in EParser.Word
+      select Expression.Variable(typeof(decimal), word);
+
+    static readonly Parser<Expression> ESSubSolvable =
+      (
+        (
+          from lparen in EParser.BraceOpen
+          from expr in Parse.Ref(() => ESAddSubtract)
+          from rparen in EParser.BraceClose
+          select expr
+        ).Named("expression")
+        .XOr(ESNumber)
+        .XOr(ESVariable)
+      ).Token();
 
 
+    static readonly Parser<Expression> ESMultiplyDivide = Parse.ChainOperator(Multiply.Or(Divide), ESSubSolvable, Expression.MakeBinary);
+
+    static readonly Parser<Expression> ESAddSubtract = Parse.ChainOperator(Add.Or(Subtract), ESMultiplyDivide, Expression.MakeBinary);
+
+    public static Parser<ESolvable> ESolvable = ESAddSubtract.Select(solvable => new ESolvable { contents = solvable });
+
+    public static readonly Parser<Func<decimal>> Lambda =
+        ESAddSubtract.End().Select(body => Expression.Lambda<Func<decimal>>(body).Compile());
 
   }
 }

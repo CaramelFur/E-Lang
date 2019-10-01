@@ -24,9 +24,9 @@ namespace E_Lang.src
 
     public EFunction(EFunctionOperation operation)
     {
-      this.arguments = operation.arguments;
-      this.type = operation.type;
-      this.operations = operation.operations;
+      arguments = operation.arguments;
+      type = operation.type;
+      operations = operation.operations;
     }
 
     public override string ToString()
@@ -88,40 +88,6 @@ namespace E_Lang.src
     public override string ToString()
     {
       return type;
-    }
-  }
-
-  public class ESolvable
-  {
-    public string contents;
-
-    public override string ToString()
-    {
-      return contents;
-    }
-
-    public string SolveString()
-    {
-      return contents;
-    }
-
-    public int SolveInt()
-    {
-      try
-      {
-        int result = Int32.Parse(contents);
-        return result;
-      }
-      catch (FormatException)
-      {
-        throw new Exception("Could not parse int: " + contents);
-      }
-    }
-
-    public bool SolveBool()
-    {
-      if (SolveInt() != 0) return true;
-      else return false;
     }
   }
 
