@@ -2,12 +2,18 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace E_Lang.src
+using E_Lang.variables;
+using E_Lang.functions;
+
+
+namespace E_Lang.scope
 {
+
+  // This a scope that holds variables and function, it can also create nested scopes
   public class EScope
   {
-    public Dictionary<string, EVariable> variables = new Dictionary<string, EVariable>();
-    public Dictionary<string, EFunction> functions = new Dictionary<string, EFunction>();
+    private readonly Dictionary<string, EVariable> variables = new Dictionary<string, EVariable>();
+    private readonly Dictionary<string, EFunction> functions = new Dictionary<string, EFunction>();
 
     private readonly EScope parent;
     private readonly int depth;
@@ -25,7 +31,14 @@ namespace E_Lang.src
 
     public void Set(string name, EVariable variable)
     {
-      variables[name] = variable;
+      try
+      {
+        variables.Add(name, variable);
+      }
+      catch 
+      {
+        throw new Exception("The variable " + name + " has already been declared");
+      }
     }
 
     public EVariable Get(string name)
@@ -40,7 +53,14 @@ namespace E_Lang.src
 
     public void SetFunction(string name, EFunction program)
     {
-      functions[name] = program;
+      try
+      {
+        functions.Add(name, program);
+      }
+      catch 
+      {
+        throw new Exception("The function " + name + " has already been declared");
+      }
     }
 
     public EFunction GetFunction(string name)
@@ -86,27 +106,5 @@ namespace E_Lang.src
       return new EScope(this);
     }
   }
-
-  public class EVariable
-  {
-    public decimal value = 0;
-
-
-    public virtual EVariable Assign(decimal value)
-    {
-      this.value = value;
-      return this;
-    }
-
-    public override string ToString()
-    {
-      return value.ToString();
-    }
-
-    public static EVariable New(EType type){
-      return new EVariable();
-    }
-  }
-
 
 }

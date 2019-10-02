@@ -5,7 +5,9 @@ using System.IO;
 using System.Text;
 using Sprache;
 
-using E_Lang.src;
+using E_Lang.types;
+using E_Lang.lexer;
+using E_Lang.interpreter;
 
 namespace E_Lang
 {
@@ -13,26 +15,21 @@ namespace E_Lang
   {
     static void Main()
     {
-
       try
       {
-        //var test = EParser.Test();
-
         Prog();
         //Test();
-
       }
       catch (ParseException e)
       {
         Console.WriteLine(e.ToString());
       }
-
     }
 
     static void Prog()
     {
       string input = File.ReadAllText("./testPrograms/shouldwork.elg", Encoding.UTF8);
-      EProgram test = EParser.EProgram.Parse(input);
+      EProgram test = EParser.Program.Parse(input);
       //Console.WriteLine(test);
       Interpreter interpreter = new Interpreter();
       interpreter.Run(test);
@@ -41,7 +38,7 @@ namespace E_Lang
 
     static void Test()
     {
-      var test = EParser.ECallOperation.End().Parse("a -> hi;");
+      var test = EParser.CallOperation.End().Parse("a -> hi;");
 
       Console.WriteLine(test);
 
