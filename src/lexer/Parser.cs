@@ -119,6 +119,14 @@ namespace E_Lang.lexer
       from semicolon in EndLine
       select new ECheckOperation(solvable, operations);
 
+    static readonly Parser<EWhileOperation> WhileOperation =
+      from keyword in Parse.String("while")
+      from solvable in Solvable.Contained(BraceOpen, BraceClose)
+      from arrow in ArrowRight
+      from operations in SubProgram
+      from semicolon in EndLine
+      select new EWhileOperation(solvable, operations);
+
     static readonly Parser<EFunctionOperation> FunctionOperation =
       from keyword in Parse.String("function")
       from arguments in FunctionArguments
@@ -156,6 +164,7 @@ namespace E_Lang.lexer
          .Or<EOperation>(AssignOperation)
          .Or(CallOperation)
          .Or(CheckOperation)
+         .Or(WhileOperation)
          .Or(FunctionOperation)
          .Or(ExpressionOperation);
 

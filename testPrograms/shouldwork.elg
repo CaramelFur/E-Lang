@@ -1,16 +1,11 @@
-create double: a;
-create int: b;
-create boolean: c;
-create void: d;
+create int: a;
 
-a <- 3.345;
+a <- 10;
 
-{a} -> log;
+while {a} -> {
+  {a} -> log;
+  a <- a - 1;
+};
 
-b <- a;
 
-{b} -> log;
 
-c <- b;
-
-{a, b, c, d} -> log;
