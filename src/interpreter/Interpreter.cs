@@ -12,28 +12,7 @@ namespace E_Lang.interpreter
 
     public Interpreter()
     {
-      AddBasicFunctions();
-    }
-
-    private void AddBasicFunctions()
-    {
-      scope.SetFunction("log", 
-        new EFunction(
-          new EWord("log"),
-          new EType("void"),
-          new EProgram(new EOperation[] {
-            new EAPrintOperation(
-              new EWord("toLog")
-            )
-          }),
-          new EFunctionArgument[] {
-            new EFunctionArgument {
-              type = new EType ("double"),
-              variable = new EWord("toLog")
-            }
-          }
-        )
-      );
+      GlobalFunctions.Add(scope);
     }
 
     public EVariable Run(EProgram program)

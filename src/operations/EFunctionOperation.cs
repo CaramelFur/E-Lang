@@ -32,9 +32,9 @@ namespace E_Lang.operations
       return "EFunction{\nname: '" + name + "'\ntype: " + type + "\narguments: (" + argString + ")\n" + program + "\n}";
     }
 
-    public EFunction ToEFunction()
+    public ECustomFunction ToEFunction()
     {
-      return new EFunction(name, type, program, arguments);
+      return new ECustomFunction(name, type, program, arguments);
     }
 
     public override EVariable Exec(EScope scope)

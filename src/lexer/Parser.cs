@@ -50,9 +50,9 @@ namespace E_Lang.lexer
     // Parser for types that you assign and create
     static readonly Parser<EType> CreateableType =
       from typeName in Parse.String("int")
-      /* .Or(Parse.String("boolean"))
-      .Or(Parse.String("string"))
-      .Or(Parse.String("void"))*/
+      .Or(Parse.String("double"))
+      .Or(Parse.String("boolean"))
+      .Or(Parse.String("void"))
       .Text()
       select new EType(typeName);
     // Parser for the other types

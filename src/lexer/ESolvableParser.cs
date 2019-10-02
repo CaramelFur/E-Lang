@@ -24,6 +24,12 @@ namespace E_Lang.lexer
         select new ESNumber(decimal.Parse(dec))
       ).Named("number");
 
+    static readonly Parser<ESBoolean> Boolean =
+      (
+        from boolean in Parse.String("true").Or(Parse.String("false")).Text()
+        select new ESBoolean(boolean == "true")
+      ).Named("boolean");
+
     static readonly Parser<ESVariable> Variable =
       from word in EParser.SimpleWord
       select new ESVariable(word);
@@ -37,6 +43,7 @@ namespace E_Lang.lexer
           select expr
         )
         .XOr(Number)
+        .XOr(Boolean)
         .XOr(Variable)
       ).Token();
 

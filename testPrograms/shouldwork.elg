@@ -1,16 +1,16 @@
-create int: a;
+create double: a;
+create int: b;
+create boolean: c;
+create void: d;
 
-a <- 10000;
+a <- 3.345;
 
 {a} -> log;
 
-function () -> int : loop <- {
-  check {a} -> {
-    a <- a - 1;
-    {a} -> log;
-    {} -> loop;
-  };
-  
-};
+b <- a;
 
-{} -> loop;
+{b} -> log;
+
+c <- b;
+
+{a, b, c, d} -> log;

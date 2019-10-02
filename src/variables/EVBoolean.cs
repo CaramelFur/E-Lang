@@ -32,7 +32,7 @@ namespace E_Lang.variables
 
     public override string ToString()
     {
-      return value.ToString();
+      return value ? "true" : "false";
     }
   }
 }

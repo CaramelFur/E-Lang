@@ -1,2 +1,0 @@
-Fix up the EVariable
-Add while
