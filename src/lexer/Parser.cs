@@ -15,6 +15,7 @@ namespace E_Lang.lexer
     public static readonly Parser<char> Colon = Parse.Token(Parse.Char(':')).Named("Colon");
     public static readonly Parser<char> Comma = Parse.Token(Parse.Char(',')).Named("Comma");
     public static readonly Parser<char> EndLine = Parse.Token(Parse.Char(';')).Named("Semicolon");
+    public static readonly Parser<char> Exclamation = Parse.Token(Parse.Char('!')).Named("Exclamation");
 
     // Opening and closing characters
     public static readonly Parser<char> BraceOpen = Parse.Token(Parse.Char('{')).Named("Opening Brace");
@@ -152,8 +153,16 @@ namespace E_Lang.lexer
         from solvable in Solvable.Contained(BraceOpen, BraceClose)
         from arrow in ArrowRight
         from operations in SubProgram
+        from elseOperations in (
+          from exclamation in Exclamation
+          from elseOps in SubProgram
+          select elseOps
+        ).Named("Else Operations").Optional()
         from semicolon in EndLine
-        select new EIfOperation(solvable, operations)
+        select 
+          elseOperations.IsDefined ? 
+          new EIfOperation(solvable, operations, elseOperations.Get()) :
+          new EIfOperation(solvable, operations)
       ).Named("If Operation");
 
     // Parses a while statement, this is a looping if statement
@@ -189,7 +198,7 @@ namespace E_Lang.lexer
         from arguments in CallArguments
         from arrow in ArrowRight
         from word in Word
-        from assign in 
+        from assign in
           (
             from secondArrow in ArrowRight
             from variable in Word
@@ -198,7 +207,7 @@ namespace E_Lang.lexer
           .Named("Call Assign Operation")
           .Optional()
         from semicolon in EndLine
-        select 
+        select
           assign.IsDefined ?
           new ECallOperation(word, arguments, assign.Get()) :
           new ECallOperation(word, arguments)
@@ -240,11 +249,11 @@ namespace E_Lang.lexer
     public static Parser<EProgram> Program =
       (
         from space in Parse.WhiteSpace.Many()
-        from operations in 
+        from operations in
           Operations
           .Many()
           .Named("Operations")
-        from comment in 
+        from comment in
           CommentOperation
           .Many()
           .Optional()

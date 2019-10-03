@@ -12,11 +12,20 @@ namespace E_Lang.operations
   {
     private readonly ESolvable check;
     private readonly EProgram program;
+    private readonly bool hasElse = false;
+    private readonly EProgram elseProgram;
 
     public EIfOperation(ESolvable check, EOperation[] operations)
     {
       this.check = check;
       program = new EProgram(operations);
+    }
+
+    public EIfOperation(ESolvable check, EOperation[] operations, EOperation[] elseOperations) :
+    this(check, operations)
+    {
+      hasElse = true;
+      elseProgram = new EProgram(elseOperations);
     }
 
     public override string ToString()
@@ -26,14 +35,20 @@ namespace E_Lang.operations
 
     public override EVariable Exec(EScope scope)
     {
-      EVBoolean solved = (EVBoolean) check.Solve(scope).Convert(new EType("boolean"));
+      EVBoolean solved = (EVBoolean)check.Solve(scope).Convert(new EType("boolean"));
 
       if (solved.Get())
       {
         EScope subScope = scope.GetChild();
         return Interpreter.Run(program, subScope);
       }
+      if (hasElse)
+      {
+        EScope subScope = scope.GetChild();
+        return Interpreter.Run(elseProgram, subScope);
+      }
       return new EVVoid();
+
     }
   }
 
