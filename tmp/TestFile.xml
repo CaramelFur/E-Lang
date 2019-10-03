@@ -1,7 +1,0 @@
-<body>
-  <p>
-    hello,<br/> <!--
-      This is a comment
-    --><i>world!</i>
-  </p>
-</body>

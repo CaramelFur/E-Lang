@@ -1,0 +1,25 @@
+# Create ints to work with
+create int: a;
+create int: b;
+
+# Assign them both a value
+a <- 1;
+b <- 1;
+
+###
+Keep going until a goes over 10000
+If we dont stop we will hit an exception because ints can only hold so much data
+###
+
+while {a < 10000} -> {
+  # Create and integer to store the new value temporary
+  create int: c;
+  
+  # Log the a value
+  {a} -> log;
+
+  # Shift the new values accordingly
+  c <- a + b;
+  b <- a;
+  a <- c;
+};

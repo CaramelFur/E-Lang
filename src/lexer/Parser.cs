@@ -82,7 +82,7 @@ namespace E_Lang.lexer
     static readonly Parser<EOperation[]> SubProgram =
       (
         from operations in
-          Parse.Ref(() => EOperation)
+          Parse.Ref(() => Operations)
           .Many()
           .Contained(BraceOpen, BraceClose)
         select operations.ToArray()
