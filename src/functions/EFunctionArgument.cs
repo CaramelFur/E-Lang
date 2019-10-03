@@ -4,12 +4,28 @@ namespace E_Lang.functions
 {
   public class EFunctionArgument
   {
-    public EType type;
-    public EWord variable;
+    private readonly EType type;
+    private readonly EWord variable;
+
+    public EFunctionArgument(EWord name, EType type)
+    {
+      variable = name;
+      this.type = type;
+    }
 
     public override string ToString()
     {
       return type + ": " + variable;
+    }
+
+    public EWord GetVariable()
+    {
+      return variable;
+    }
+
+    public EType GetEType()
+    {
+      return type;
     }
   }
 }

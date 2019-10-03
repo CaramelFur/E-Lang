@@ -21,6 +21,10 @@ namespace E_Lang.solvable
 
     public EVariable Solve(EVariable first, EVariable second)
     {
+      // Solve equations with high precision
+      if (first is EVInt) first = first.Convert("double");
+      if (second is EVInt) second = second.Convert("double");
+
       Expression toSolve = Expression.MakeBinary(
         type,
         Expression.Constant(first.Get()),

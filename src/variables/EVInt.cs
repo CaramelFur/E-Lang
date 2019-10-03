@@ -29,7 +29,7 @@ namespace E_Lang.variables
 
     public override dynamic Get()
     {
-      return (decimal) value;
+      return value;
     }
 
     public override EVariable Set(dynamic setto)

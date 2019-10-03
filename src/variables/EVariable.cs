@@ -31,7 +31,7 @@ namespace E_Lang.variables
 
     public EType GetEType()
     {
-      string type = types.Where((pair) => pair.Value == this.GetType()).First().Key;
+      string type = types.Where((pair) => pair.Value == GetType()).First().Key;
       return new EType(type);
     }
 
@@ -43,6 +43,10 @@ namespace E_Lang.variables
     public virtual EVariable Assign(EVariable assign)
     {
       throw new Exception("Cannot assign to abstract class");
+    }
+
+    public EVariable Convert(string to){
+      return Convert(new EType(to));
     }
 
     public virtual EVariable Convert(EType to)

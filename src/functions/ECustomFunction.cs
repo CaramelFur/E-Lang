@@ -46,8 +46,8 @@ namespace E_Lang.functions
 
       for (int i = 0; i < arguments.Length; i++)
       {
-        string argname = arguments[i].variable.ToString();
-        EType argtype = arguments[i].type;
+        string argname = arguments[i].GetVariable().ToString();
+        EType argtype = arguments[i].GetEType();
 
         EVariable solved = EVariable.New(argtype).Assign(args[i].Solve(lowerScope));
         lowerScope.Set(argname, solved);
