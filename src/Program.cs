@@ -15,33 +15,35 @@ namespace E_Lang
   {
     static void Main(string[] args)
     {
-      try
+      if (args.Length > 1)
       {
-        Prog();
-        //Test();
+        throw new Exception("Please do not supply more than 1 argument");
       }
-      catch (ParseException e)
-      {
-        Console.WriteLine(e.ToString());
-      }
-    }
 
-    static void Prog()
-    {
-      string input = File.ReadAllText("./testPrograms/shouldwork.elg", Encoding.UTF8);
-      EProgram test = EParser.Program.Parse(input);
-      //Console.WriteLine(test);
       Interpreter interpreter = new Interpreter();
-      interpreter.Run(test);
-      //
-    }
+      if (args.Length == 0)
+      {
+        while (true) { 
+          Console.Write("> "); 
+          string next = Console.ReadLine();
+          if(next == "quit") break;
 
-    static void Test()
-    {
-      var test = EParser.CallOperation.End().Parse("a -> hi;");
+          try{
+            EProgram prog = EParser.Program.Parse(next);
+            interpreter.Run(prog);
+          }catch(Exception e){
+            Console.WriteLine(e.Message);
+          }
+        }
+      }
+      else if (args.Length == 1)
+      {
+        string input = File.ReadAllText(args[0], Encoding.UTF8);
+        EProgram test = EParser.Program.Parse(input);
 
-      Console.WriteLine(test);
-
+        interpreter.Run(test);
+      }
+      /* */
     }
   }
 
