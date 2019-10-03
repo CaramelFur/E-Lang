@@ -27,12 +27,12 @@ namespace E_Lang.variables
       return CannotConvert(to);
     }
 
-    public decimal Get()
+    public override dynamic Get()
     {
       return value;
     }
 
-    public EVDouble Set(decimal setto)
+    public override EVariable Set(dynamic setto)
     {
       value = setto;
       return this;

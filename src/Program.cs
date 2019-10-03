@@ -23,25 +23,37 @@ namespace E_Lang
       Interpreter interpreter = new Interpreter();
       if (args.Length == 0)
       {
-        while (true) { 
-          Console.Write("> "); 
+        while (true)
+        {
+          Console.Write("> ");
           string next = Console.ReadLine();
-          if(next == "quit") break;
+          if (next == "quit") break;
 
-          try{
+          try
+          {
             EProgram prog = EParser.Program.Parse(next);
-            interpreter.Run(prog);
-          }catch(Exception e){
-            Console.WriteLine(e.Message);
+            string result = interpreter.Run(prog).ToString();
+            Console.WriteLine(result);
+          }
+          catch (Exception e)
+          {
+            Console.WriteLine(e);
           }
         }
       }
       else if (args.Length == 1)
       {
-        string input = File.ReadAllText(args[0], Encoding.UTF8);
-        EProgram test = EParser.Program.Parse(input);
+        try
+        {
+          string input = File.ReadAllText(args[0], Encoding.UTF8);
+          EProgram test = EParser.Program.Parse(input);
 
-        interpreter.Run(test);
+          interpreter.Run(test);
+        }
+        catch (Exception e)
+        {
+          Console.WriteLine(e.Message);
+        }
       }
       /* */
     }

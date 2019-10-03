@@ -18,8 +18,8 @@ namespace E_Lang.lexer
 
     public static readonly Parser<char> BraceOpen = Parse.Token(Parse.Char('{'));
     public static readonly Parser<char> BraceClose = Parse.Token(Parse.Char('}'));
-    public static readonly Parser<char> RoundBraceOpen = Parse.Token(Parse.Char('('));
-    public static readonly Parser<char> RoundBraceClose = Parse.Token(Parse.Char(')'));
+    public static readonly Parser<char> ParenthesesOpen = Parse.Token(Parse.Char('('));
+    public static readonly Parser<char> ParenthesesClose = Parse.Token(Parse.Char(')'));
     public static readonly Parser<char> BracketOpen = Parse.Token(Parse.Char('['));
     public static readonly Parser<char> BracketClose = Parse.Token(Parse.Char(']'));
 
@@ -79,7 +79,7 @@ namespace E_Lang.lexer
       from arguments in FunctionArgument
         .DelimitedBy(Comma)
         .Optional()
-        .Contained(RoundBraceOpen, RoundBraceClose)
+        .Contained(ParenthesesOpen, ParenthesesClose)
       select arguments.IsDefined ? arguments.Get().ToArray() : new EFunctionArgument[] { };
 
     static readonly Parser<ESolvable[]> CallArguments =

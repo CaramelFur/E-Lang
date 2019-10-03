@@ -19,12 +19,12 @@ namespace E_Lang.variables
       return CannotConvert(to);
     }
 
-    public bool Get()
+    public override dynamic Get()
     {
       return value;
     }
 
-    public EVBoolean Set(bool setto)
+    public override EVariable Set(dynamic setto)
     {
       value = setto;
       return this;

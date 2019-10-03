@@ -10,35 +10,25 @@ namespace E_Lang.solvable
   {
     private readonly ExpressionType type;
     private readonly string op;
+    private readonly EType returnType;
 
-    public ESOperator(string op, ExpressionType type)
+    public ESOperator(string op, ExpressionType type, EType returnType)
     {
       this.op = op;
       this.type = type;
+      this.returnType = returnType;
     }
 
     public EVariable Solve(EVariable first, EVariable second)
     {
-      decimal dfirst =
-      (
-        (EVDouble)
-        first.Convert(new EType("double"))
-      ).Get();
-
-      decimal dsecond =
-      (
-        (EVDouble)
-        second.Convert(new EType("double"))
-      ).Get();
-
       Expression toSolve = Expression.MakeBinary(
         type,
-        Expression.Constant(dfirst),
-        Expression.Constant(dsecond)
+        Expression.Constant(first.Get()),
+        Expression.Constant(second.Get())
       );
 
-      decimal solved = Expression.Lambda<Func<decimal>>(toSolve).Compile()();
-      return new EVDouble().Set(solved);
+      dynamic solve = Expression.Lambda(toSolve).Compile();
+      return EVariable.New(returnType).Set(solve());
     }
 
     public override string ToString()
@@ -48,7 +38,7 @@ namespace E_Lang.solvable
 
     public string ToString(bool detailed)
     {
-      if (detailed) return "ESOperator[" + op + "]";
+      if (detailed) return "ESOperator(" + returnType + ")[" + op + "]";
       else return op;
     }
   }
