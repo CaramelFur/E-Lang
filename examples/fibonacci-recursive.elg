@@ -1,7 +1,6 @@
 function (int: n) -> int : fib <- {
-  if {n <= 1} -> {
-    n;
-  } ! {
+  if n <= 1 -> n;
+  else {
     create int: a;
     create int: b;
 
@@ -9,12 +8,10 @@ function (int: n) -> int : fib <- {
     {n - 2} -> fib -> b;
 
     a + b;
-  };
-};
+  }
+}
 
-create int: n;
-
-n <- 9;
+create int: n <- 9;
 
 create int: out;
 

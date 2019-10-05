@@ -84,8 +84,12 @@ namespace E_Lang.lexer
       (
         from operations in
           Parse.Ref(() => Operations)
-          .Many()
-          .Contained(BraceOpen, BraceClose)
+            .Select(o => new EOperation[] {o})
+          .Or(
+            Parse.Ref(() => Operations)
+            .Many()
+            .Contained(BraceOpen, BraceClose)
+          )
         select operations.ToArray()
       ).Named("Sub Program");
 
@@ -138,7 +142,7 @@ namespace E_Lang.lexer
           select solvable
         ).Optional()
         from semicolon in EndLine
-        select 
+        select
           assign.IsDefined ?
           new ECreateOperation(name, type, assign.Get()) :
           new ECreateOperation(name, type)
@@ -158,17 +162,16 @@ namespace E_Lang.lexer
     static readonly Parser<EIfOperation> IfOperation =
       (
         from keyword in Parse.String("if")
-        from solvable in Solvable.Contained(BraceOpen, BraceClose)
+        from solvable in Solvable
         from arrow in ArrowRight
         from operations in SubProgram
         from elseOperations in (
-          from exclamation in Exclamation
+          from elseWord in Parse.String("else").Token()
           from elseOps in SubProgram
           select elseOps
         ).Named("Else Operations").Optional()
-        from semicolon in EndLine
-        select 
-          elseOperations.IsDefined ? 
+        select
+          elseOperations.IsDefined ?
           new EIfOperation(solvable, operations, elseOperations.Get()) :
           new EIfOperation(solvable, operations)
       ).Named("If Operation");
@@ -177,10 +180,9 @@ namespace E_Lang.lexer
     static readonly Parser<EWhileOperation> WhileOperation =
       (
         from keyword in Parse.String("while")
-        from solvable in Solvable.Contained(BraceOpen, BraceClose)
+        from solvable in Solvable
         from arrow in ArrowRight
         from operations in SubProgram
-        from semicolon in EndLine
         select new EWhileOperation(solvable, operations)
       ).Named("While Operation");
 
@@ -195,7 +197,6 @@ namespace E_Lang.lexer
         from name in Word
         from leftarrow in ArrowLeft
         from operations in SubProgram
-        from semicolon in EndLine
         select new EFunctionOperation(name, type, arguments, operations)
       ).Named("Function Operation");
 
