@@ -47,7 +47,7 @@ namespace E_Lang
         {
           string input = File.ReadAllText(args[0], Encoding.UTF8);
           EProgram test = EParser.Program.Parse(input);
-
+          Console.WriteLine(test);
           interpreter.Run(test);
         }
         catch (Exception e)

@@ -132,8 +132,16 @@ namespace E_Lang.lexer
         from type in CreateableType
         from colon in Parse.Token(Parse.Char(':'))
         from name in Word
+        from assign in (
+          from arrow in ArrowLeft
+          from solvable in Solvable
+          select solvable
+        ).Optional()
         from semicolon in EndLine
-        select new ECreateOperation(name, type)
+        select 
+          assign.IsDefined ?
+          new ECreateOperation(name, type, assign.Get()) :
+          new ECreateOperation(name, type)
       ).Named("Create Operation");
 
     // Parses a assign variable operation

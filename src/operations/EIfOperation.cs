@@ -1,9 +1,10 @@
+using System;
+
 using E_Lang.types;
 using E_Lang.variables;
 using E_Lang.scope;
 using E_Lang.solvable;
 using E_Lang.interpreter;
-
 
 namespace E_Lang.operations
 {
@@ -12,8 +13,7 @@ namespace E_Lang.operations
   {
     private readonly ESolvable check;
     private readonly EProgram program;
-    private readonly bool hasElse = false;
-    private readonly EProgram elseProgram;
+    private readonly EProgram elseProgram = null;
 
     public EIfOperation(ESolvable check, EOperation[] operations)
     {
@@ -24,7 +24,6 @@ namespace E_Lang.operations
     public EIfOperation(ESolvable check, EOperation[] operations, EOperation[] elseOperations) :
     this(check, operations)
     {
-      hasElse = true;
       elseProgram = new EProgram(elseOperations);
     }
 
@@ -42,7 +41,7 @@ namespace E_Lang.operations
         EScope subScope = scope.GetChild();
         return Interpreter.Run(program, subScope);
       }
-      if (hasElse)
+      if (elseProgram != null)
       {
         EScope subScope = scope.GetChild();
         return Interpreter.Run(elseProgram, subScope);

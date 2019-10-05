@@ -12,8 +12,8 @@ namespace E_Lang.operations
   {
     private readonly EWord callFunc;
     private readonly ESolvable[] arguments = { };
-    private readonly EWord setVariable;
-    private readonly bool alsoSet = false;
+
+    private readonly EWord setVariable = null;
 
     public ECallOperation(EWord callFunc, ESolvable[] arguments)
     {
@@ -24,7 +24,6 @@ namespace E_Lang.operations
     public ECallOperation(EWord callFunc, ESolvable[] arguments, EWord setVariable) : this(callFunc, arguments)
     {
       this.setVariable = setVariable;
-      alsoSet = true;
     }
 
     public override string ToString()
@@ -35,7 +34,7 @@ namespace E_Lang.operations
         if (i != 0) argString += ", ";
         argString += arguments[i].ToString();
       }
-      if (!alsoSet) return "ECall{function: " + callFunc + ", arguments: " + "(" + argString + ")}";
+      if (setVariable == null) return "ECall{function: " + callFunc + ", arguments: " + "(" + argString + ")}";
       else return "ECallAndAssign{function: " + callFunc + ", arguments: " + "(" + argString + "), assign: " + setVariable + "}";
     }
 
@@ -45,7 +44,7 @@ namespace E_Lang.operations
 
       EVariable output = toRun.Exec(scope, arguments);
 
-      if (alsoSet)
+      if (setVariable != null)
       {
         EVariable toUpdate = scope.Get(setVariable.ToString());
         toUpdate.Assign(output);
