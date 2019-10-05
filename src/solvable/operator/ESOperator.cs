@@ -10,13 +10,11 @@ namespace E_Lang.solvable
   {
     private readonly string op;
 
-    protected readonly ExpressionType type;
-    protected readonly EType returnType;
+    protected readonly EType returnType = null;
 
-    public ESOperator(string op, ExpressionType type, EType returnType)
+    public ESOperator(string op, EType returnType)
     {
       this.op = op;
-      this.type = type;
       this.returnType = returnType;
     }
 
@@ -37,7 +35,11 @@ namespace E_Lang.solvable
 
     public string ToString(bool detailed)
     {
-      if (detailed) return "ESOperator(" + returnType + ")[" + op + "]";
+      if (detailed)
+      {
+        if (returnType != null) return "ESOperator(" + returnType + ")[" + op + "]";
+        else return "ESOperator[" + op + "]";
+      }
       else return op;
     }
   }

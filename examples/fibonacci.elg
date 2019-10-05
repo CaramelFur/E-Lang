@@ -8,13 +8,9 @@ If we dont stop we will hit an exception because ints can only hold so much data
 ###
 
 while a < 10000 -> {
-  # Create and integer to store the new value temporary
-  create int: c <- a + b;
-  
   # Log the a value
   {a} -> log;
 
   # Shift the new values accordingly
-  b <- a;
-  a <- c;
+  b <- a <- a + b;
 }

@@ -148,16 +148,6 @@ namespace E_Lang.lexer
           new ECreateOperation(name, type)
       ).Named("Create Operation");
 
-    // Parses a assign variable operation
-    static readonly Parser<EAssignOperation> AssignOperation =
-      (
-        from variable in Word
-        from arrow in ArrowLeft
-        from content in Solvable
-        from semicolon in EndLine
-        select new EAssignOperation(variable, content)
-      ).Named("Assign Operation");
-
     // Parses an if statement, it does not have an else though
     static readonly Parser<EIfOperation> IfOperation =
       (
@@ -234,8 +224,7 @@ namespace E_Lang.lexer
     // Parses different types of operations
     static readonly Parser<EOperation> EOperation =
         CreateOperation
-         .Or<EOperation>(AssignOperation)
-         .Or(CallOperation)
+         .Or<EOperation>(CallOperation)
          .Or(IfOperation)
          .Or(WhileOperation)
          .Or(FunctionOperation)

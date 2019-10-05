@@ -62,6 +62,10 @@ namespace E_Lang.variables
      return this;
     }
 
+    public EVariable Clone() {
+      return New(GetEType()).Assign(this);
+    }
+
     protected EVariable CannotConvert(EType type)
     {
       throw new Exception("Cannot convert " + type + " to " + GetEType());

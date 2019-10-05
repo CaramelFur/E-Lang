@@ -8,9 +8,13 @@ namespace E_Lang.solvable
 {
   public class ESOLinq : ESOperator
   {
-    
+    private readonly ExpressionType type;
+
     public ESOLinq(string op, ExpressionType type, EType returnType) :
-      base(op, type, returnType) {}
+      base(op, returnType)
+    {
+      this.type = type;
+    }
 
     public override EVariable Solve(EVariable first, EVariable second)
     {

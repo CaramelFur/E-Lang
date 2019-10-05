@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Linq.Expressions;
 using Sprache;
@@ -10,14 +11,45 @@ namespace E_Lang.lexer
   class ESolvableParser
   {
     // Parse a math token and return the appropiate operator
+    static Parser<ESOperator> SimpleOperator(string op, string not, ExpressionType opType, string returnType)
+    {
+      return
+        from begin in
+          SimpleOperator(op, opType, returnType)
+        from end in
+          Parse.String(not).Not()
+        select begin;
+    }
+
+    static Parser<ESOperator> SimpleOperator(string op, string not, ExpressionType opType)
+    {
+      return SimpleOperator(op, not, opType, "double");
+    }
+
+
     static Parser<ESOperator> SimpleOperator(string op, ExpressionType opType, string returnType)
     {
-      return Parse.String(op).Token().Named("Solvable Operator").Return(new ESOLinq(op, opType, new EType(returnType)));
+      return
+        Parse
+        .String(op)
+        .Token()
+        .Named("Solvable Operator")
+        .Return(new ESOLinq(op, opType, new EType(returnType)));
     }
 
     static Parser<ESOperator> SimpleOperator(string op, ExpressionType opType)
     {
       return SimpleOperator(op, opType, "double");
+    }
+
+    static Parser<ESOperator> AssignOperator(string op, AssignType opType)
+    {
+      return
+        Parse
+        .String(op)
+        .Token()
+        .Named("Solvable Operator")
+        .Return(new ESOAssign(op, opType));
     }
 
     // Simple integer operations
@@ -38,7 +70,11 @@ namespace E_Lang.lexer
     static readonly Parser<ESOperator> GreaterThanOrEqual = SimpleOperator(">=", ExpressionType.GreaterThanOrEqual, "boolean");
     static readonly Parser<ESOperator> LessThanOrEqual = SimpleOperator("<=", ExpressionType.LessThanOrEqual, "boolean");
     static readonly Parser<ESOperator> GreaterThan = SimpleOperator(">", ExpressionType.GreaterThan, "boolean");
-    static readonly Parser<ESOperator> LessThan = SimpleOperator("<", ExpressionType.LessThan, "boolean");
+    static readonly Parser<ESOperator> LessThan = SimpleOperator("<", "-", ExpressionType.LessThan, "boolean");
+
+    // Assign operations
+    static readonly Parser<ESOperator> Assign = AssignOperator("=", AssignType.Assign);
+    static readonly Parser<ESOperator> MoveOp = AssignOperator("<-", AssignType.Move);
 
     // Parse a decimal number
     static readonly Parser<ESNumber> Number =
@@ -61,16 +97,18 @@ namespace E_Lang.lexer
         select new ESVariable(word)
       ).Named("Solvable Variable");
 
+    // === Start operations
+
     // Parse an expression, this can be:
     // - Another expression surrounded by parentheses
     // - A number
     // - A boolean
     // - A variable
-    static readonly Parser<ESExpression> Expression =
+    static Parser<ESExpression> SubExpression(Parser<ESExpression> input) =>
       (
         (
           from lparen in EParser.ParenthesesOpen
-          from expr in Parse.Ref(() => AddSubtract)
+          from expr in Parse.Ref(() => BeginExpression())
           from rparen in EParser.ParenthesesClose
           select expr
         )
@@ -82,32 +120,59 @@ namespace E_Lang.lexer
       .Named("Solvable Expression");
 
     // Parse all comparison operations
-    static readonly Parser<ESExpression> Comparisons = Parse.ChainOperator(
+    static Parser<ESExpression> Comparisons(Parser<ESExpression> input) => Parse.ChainOperator(
       Equal
         .Or(NotEqual)
         .Or(GreaterThanOrEqual)
         .Or(LessThanOrEqual)
         .Or(GreaterThan)
-        .Or(LessThan), 
-      Expression, 
+        .Or(LessThan),
+      input,
       ESExpression.CombineExpression
     );
 
     // Parse all conditional operations
-    static readonly Parser<ESExpression> Conditionals = Parse.ChainOperator(And.Or(Or), Comparisons, ESExpression.CombineExpression);
+    static Parser<ESExpression> Conditionals(Parser<ESExpression> input) =>
+      Parse.ChainOperator(And.Or(Or), input, ESExpression.CombineExpression);
 
     // Parse things like power and root
-    static readonly Parser<ESExpression> PowerRoot = Parse.ChainOperator(Power, Conditionals, ESExpression.CombineExpression);
+    static Parser<ESExpression> PowerRoot(Parser<ESExpression> input) =>
+      Parse.ChainOperator(Power, input, ESExpression.CombineExpression);
 
     // Parse things like multiply and divide
-    static readonly Parser<ESExpression> MultiplyDivideModulo = Parse.ChainOperator(Multiply.Or(Divide).Or(Modulo), PowerRoot, ESExpression.CombineExpression);
+    static Parser<ESExpression> MultiplyDivideModulo(Parser<ESExpression> input) =>
+      Parse.ChainOperator(Multiply.Or(Divide).Or(Modulo), input, ESExpression.CombineExpression);
 
     // Parse the simple math operations
-    static readonly Parser<ESExpression> AddSubtract = Parse.ChainOperator(Add.Or(Subtract), MultiplyDivideModulo, ESExpression.CombineExpression);
+    static Parser<ESExpression> AddSubtract(Parser<ESExpression> input) =>
+      Parse.ChainOperator(Add.Or(Subtract), input, ESExpression.CombineExpression);
+
+    // Parse assing operations
+    // This operation is right associative
+    static Parser<ESExpression> AssignMove(Parser<ESExpression> input) =>
+      Parse.ChainRightOperator(MoveOp.Or(Assign), input, ESExpression.CombineExpression);
+
+    static Parser<ESExpression> BeginExpression()
+    {
+      Func<Parser<ESExpression>, Parser<ESExpression>>[] functions =
+        new Func<Parser<ESExpression>, Parser<ESExpression>>[] {
+          SubExpression,
+          PowerRoot,
+          MultiplyDivideModulo,
+          AddSubtract,
+          Comparisons,
+          Conditionals,
+          AssignMove
+        };
+
+      Parser<ESExpression> accumulated = functions.Aggregate((Parser<ESExpression>)null, (prev, next) => next(prev));
+
+      return accumulated;
+    }
 
     // Fully parse a solvable
-    public static Parser<ESolvable> ESolvable = 
-      AddSubtract
+    public static Parser<ESolvable> ESolvable =
+      BeginExpression()
       .Named("Solvable")
       .Select(solvable => new ESolvable(solvable));
   }
