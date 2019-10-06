@@ -34,27 +34,27 @@ namespace E_Lang.lexer
       .Named("Word")
       .Text();
 
-    // Comment parser
-    static readonly CommentParser Comment = new CommentParser("#", "###", "###", "\n");
-
     // Simple word parser
-    static readonly Parser<EWord> Word =
+    public static readonly Parser<EWord> Word =
       (
         from word in SimpleWord
         select new EWord(word)
       ).Named("EWord");
 
     // Arrow parser
-    static readonly Parser<EToken> ArrowLeft =
+    public static readonly Parser<EToken> ArrowLeft =
       (
         from arrow in Parse.String("<-").Token().Text()
         select new EToken(arrow)
       ).Named("Left Arrow");
-    static readonly Parser<EToken> ArrowRight =
+    public static readonly Parser<EToken> ArrowRight =
       (
         from arrow in Parse.String("->").Token().Text()
         select new EToken(arrow)
       ).Named("Right Arrow");
+
+    // Comment parser
+    static readonly CommentParser Comment = new CommentParser("#", "###", "###", "\n");
 
     // Parser for types that you assign and create
     static readonly Parser<EType> CreateableType =
@@ -84,7 +84,7 @@ namespace E_Lang.lexer
       (
         from operations in
           Parse.Ref(() => Operations)
-            .Select(o => new EOperation[] {o})
+            .Select(o => new EOperation[] { o })
           .Or(
             Parse.Ref(() => Operations)
             .Many()
@@ -112,21 +112,6 @@ namespace E_Lang.lexer
           .Contained(ParenthesesOpen, ParenthesesClose)
         select arguments.IsDefined ? arguments.Get().ToArray() : new EFunctionArgument[] { }
       ).Named("Function Arguments");
-
-    // These are the arguments passed while calling a function
-    // They consist of zero or more solvables seperated by commas
-    // And they are contained by braces
-    static readonly Parser<ESolvable[]> CallArguments =
-      (
-        from open in BraceOpen
-        from solvable in
-          Solvable
-          .Named("Call Argument")
-          .DelimitedBy(Comma)
-          .Optional()
-        from close in BraceClose
-        select solvable.IsDefined ? solvable.Get().ToArray() : new ESolvable[] { }
-      ).Named("Call Arguments");
 
     // Parses a create variable operation
     static readonly Parser<ECreateOperation> CreateOperation =
@@ -190,28 +175,6 @@ namespace E_Lang.lexer
         select new EFunctionOperation(name, type, arguments, operations)
       ).Named("Function Operation");
 
-    // Parses a call operation, this operation solves its given arguments and then call the specified function
-    // It can also immediately assign its result to a new variable
-    public static readonly Parser<ECallOperation> CallOperation =
-      (
-        from arguments in CallArguments
-        from arrow in ArrowRight
-        from word in Word
-        from assign in
-          (
-            from secondArrow in ArrowRight
-            from variable in Word
-            select variable
-          )
-          .Named("Call Assign Operation")
-          .Optional()
-        from semicolon in EndLine
-        select
-          assign.IsDefined ?
-          new ECallOperation(word, arguments, assign.Get()) :
-          new ECallOperation(word, arguments)
-      ).Named("Call Operation");
-
     // Parses an expression operation, this is just a blank expression followed by a semicolon
     // It returns its calculated result
     static readonly Parser<EExpressionOperation> ExpressionOperation =
@@ -224,8 +187,7 @@ namespace E_Lang.lexer
     // Parses different types of operations
     static readonly Parser<EOperation> EOperation =
         CreateOperation
-         .Or<EOperation>(CallOperation)
-         .Or(IfOperation)
+         .Or<EOperation>(IfOperation)
          .Or(WhileOperation)
          .Or(FunctionOperation)
          .Or(ExpressionOperation);

@@ -1,20 +1,15 @@
 function (int: n) -> int : fib <- {
-  if n <= 1 -> n;
-  else {
-    create int: a;
-    create int: b;
-
-    {n - 1} -> fib -> a;
-    {n - 2} -> fib -> b;
-
-    a + b;
-  }
+  if n <= 1 -> 
+    n;
+  else 
+    {n - 1} -> fib
+    +
+    {n - 2} -> fib;
+  
 }
 
 create int: n <- 9;
 
-create int: out;
-
-{n} -> fib -> out;
+create int: out <- {n} -> fib;
 
 {out} -> log;

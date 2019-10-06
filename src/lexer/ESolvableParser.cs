@@ -26,7 +26,6 @@ namespace E_Lang.lexer
       return SimpleOperator(op, not, opType, "double");
     }
 
-
     static Parser<ESOperator> SimpleOperator(string op, ExpressionType opType, string returnType)
     {
       return
@@ -51,6 +50,8 @@ namespace E_Lang.lexer
         .Named("Solvable Operator")
         .Return(new ESOAssign(op, opType));
     }
+
+    // ==== Start words
 
     // Simple integer operations
     static readonly Parser<ESOperator> Add = SimpleOperator("+", ExpressionType.AddChecked);
@@ -97,6 +98,31 @@ namespace E_Lang.lexer
         select new ESVariable(word)
       ).Named("Solvable Variable");
 
+    // These are the arguments passed while calling a function
+    // They consist of zero or more solvables seperated by commas
+    // And they are contained by braces
+    static readonly Parser<ESExpression[]> CallArguments =
+      (
+        from open in EParser.BraceOpen
+        from expressionArguments in
+          BeginExpression()
+          .Named("Call Argument")
+          .DelimitedBy(EParser.Comma)
+          .Optional()
+        from close in EParser.BraceClose
+        select expressionArguments.IsDefined ? expressionArguments.Get().ToArray() : new ESExpression[] { }
+      ).Named("Call Arguments");
+
+    // Parses a call operation, this operation solves its given arguments and then call the specified function
+    // It can also immediately assign its result to a new variable
+    public static readonly Parser<ESExpression> FuncCall =
+      (
+        from arguments in CallArguments
+        from arrow in EParser.ArrowRight
+        from word in EParser.Word
+        select new ESCall(word, arguments)
+      ).Named("Call Operation");
+
     // === Start operations
 
     // Parse an expression, this can be:
@@ -112,9 +138,10 @@ namespace E_Lang.lexer
           from rparen in EParser.ParenthesesClose
           select expr
         )
-        .XOr(Number)
-        .XOr(Boolean)
-        .XOr(Variable)
+        .Or(FuncCall)
+        .Or(Number)
+        .Or(Boolean)
+        .Or(Variable)
       )
       .Token()
       .Named("Solvable Expression");
