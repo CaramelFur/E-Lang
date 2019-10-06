@@ -1,13 +1,11 @@
-using E_Lang.types;
-
-namespace E_Lang.functions
+namespace E_Lang.types
 {
-  public class EFunctionArgument
+  public class ETypeNameKey
   {
     private readonly EType type;
     private readonly EWord variable;
 
-    public EFunctionArgument(EWord name, EType type)
+    public ETypeNameKey(EWord name, EType type)
     {
       variable = name;
       this.type = type;

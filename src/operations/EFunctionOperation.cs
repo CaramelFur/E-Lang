@@ -8,12 +8,12 @@ namespace E_Lang.operations
   // This operation creates a new function to be executed later
   public class EFunctionOperation : EOperation
   {
-    private readonly EFunctionArgument[] arguments = { };
+    private readonly ETypeNameKey[] arguments = { };
     private readonly EType type;
     private readonly EWord name;
     private readonly EProgram program;
 
-    public EFunctionOperation(EWord name, EType type, EFunctionArgument[] arguments, EOperation[] operations)
+    public EFunctionOperation(EWord name, EType type, ETypeNameKey[] arguments, EOperation[] operations)
     {
       this.name = name;
       this.type = type;

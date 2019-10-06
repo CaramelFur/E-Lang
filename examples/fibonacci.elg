@@ -1,6 +1,5 @@
 # Create ints to work with and assign value
-create int: a <- 1;
-create int: b <- 1;
+create int: a, b <- 1;
 
 ###
 Keep going until a goes over 10000

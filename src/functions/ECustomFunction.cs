@@ -10,12 +10,12 @@ namespace E_Lang.functions
 {
   public class ECustomFunction : EFunction
   {
-    private readonly EFunctionArgument[] arguments;
+    private readonly ETypeNameKey[] arguments;
     private readonly EType type;
     private readonly EWord name;
     private readonly EProgram program;
 
-    public ECustomFunction(EWord name, EType type, EProgram program, EFunctionArgument[] arguments)
+    public ECustomFunction(EWord name, EType type, EProgram program, ETypeNameKey[] arguments)
     {
       this.name = name;
       this.type = type;
@@ -23,7 +23,7 @@ namespace E_Lang.functions
       this.program = program;
     }
 
-    public ECustomFunction(EWord name, EType type, EProgram program) : this(name, type, program, new EFunctionArgument[] { })
+    public ECustomFunction(EWord name, EType type, EProgram program) : this(name, type, program, new ETypeNameKey[] { })
     { }
 
     public override string ToString()

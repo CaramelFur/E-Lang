@@ -93,29 +93,29 @@ namespace E_Lang.lexer
         select operations.ToArray()
       ).Named("Sub Program");
 
-    // Parse a function argument, this is a type with a colon and then a name
-    static readonly Parser<EFunctionArgument> FunctionArgument =
+    // Parse a type name key, this is a type with a colon and then a name
+    static readonly Parser<ETypeNameKey> TypeNameKey =
       (
         from type in Type
         from colon in Colon
         from name in Word
-        select new EFunctionArgument(name, type)
+        select new ETypeNameKey(name, type)
       ).Named("Function Argument");
 
-    // Parse multiple function arguments
-    // these are single function arguments seperated by commas and surrounded by braces
-    static readonly Parser<EFunctionArgument[]> FunctionArguments =
+    // Parse multiple type name keys
+    // these are single type name keys seperated by commas and surrounded by braces
+    static readonly Parser<ETypeNameKey[]> TypeNameKeys =
       (
         (
-          from arguments in FunctionArgument
+          from arguments in TypeNameKey
           .DelimitedBy(Comma)
           .Optional()
           .Contained(ParenthesesOpen, ParenthesesClose)
-          select arguments.IsDefined ? arguments.Get().ToArray() : new EFunctionArgument[] { }
+          select arguments.IsDefined ? arguments.Get().ToArray() : new ETypeNameKey[] { }
         )
         .Or(
-          from argument in FunctionArgument.Token()
-          select new EFunctionArgument[] { argument }
+          from argument in TypeNameKey.Token()
+          select new ETypeNameKey[] { argument }
         )
       ).Named("Function Arguments");
 
@@ -126,7 +126,7 @@ namespace E_Lang.lexer
         from space in Space
         from type in CreateableType
         from colon in Parse.Token(Parse.Char(':'))
-        from name in Word
+        from names in Word.DelimitedBy(Comma)
         from assign in (
           from arrow in ArrowLeft
           from solvable in Solvable
@@ -135,8 +135,8 @@ namespace E_Lang.lexer
         from semicolon in EndLine
         select
           assign.IsDefined ?
-          new ECreateOperation(name, type, assign.Get()) :
-          new ECreateOperation(name, type)
+          new ECreateOperation(names.ToArray(), type, assign.Get()) :
+          new ECreateOperation(names.ToArray(), type)
       ).Named("Create Operation");
 
     // Parses an if statement, it does not have an else though
@@ -171,7 +171,7 @@ namespace E_Lang.lexer
     static readonly Parser<EFunctionOperation> FunctionOperation =
       (
         from keyword in Parse.String("function")
-        from arguments in FunctionArguments
+        from arguments in TypeNameKeys
         from rightarrow in ArrowRight
         from type in CreateableType
         from colon in Colon

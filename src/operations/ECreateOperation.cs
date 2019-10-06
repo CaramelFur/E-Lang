@@ -1,3 +1,5 @@
+using System.Linq;
+
 using E_Lang.types;
 using E_Lang.variables;
 using E_Lang.scope;
@@ -8,39 +10,61 @@ namespace E_Lang.operations
   // This operation creates a new variable in the current scope to be used later
   public class ECreateOperation : EOperation
   {
-    private readonly EWord name;
+    private readonly EWord[] variables;
     private readonly EType type;
 
-    private readonly EAssignOperation alsoAssign = null;
+    private readonly EAssignOperation[] assignOperations = null;
 
-    public ECreateOperation(EWord name, EType type)
+    public ECreateOperation(EWord[] variables, EType type)
     {
-      this.name = name;
+      this.variables = variables;
       this.type = type;
     }
 
-    public ECreateOperation(EWord name, EType type, ESolvable assign) : this(name, type)
+    public ECreateOperation(EWord[] variables, EType type, ESolvable assign) : this(variables, type)
     {
-      alsoAssign = new EAssignOperation(name, assign);
+      assignOperations = variables.Select(variable => new EAssignOperation(variable, assign)).ToArray();
     }
 
     public override string ToString()
     {
-      if (alsoAssign != null)
+      string varstring = "";
+      for (int i = 0; i < variables.Length; i++)
       {
-        return "ECreateOperation{\n" + type + ": '" + name + "'\nsuboperation: " + alsoAssign + "\n}";
+        if (i != 0) varstring += "\n";
+        varstring += variables[i].ToString();
       }
-      return "ECreateOperation{" + type + ": '" + name + "'}";
+
+      if (assignOperations != null)
+      {
+        string opstring = "";
+        for (int i = 0; i < assignOperations.Length; i++)
+        {
+          if (i != 0) opstring += "\n";
+          opstring += assignOperations[i].ToString();
+        }
+
+        return "ECreateOperation{\n" + type + ": '" + varstring + "'\nsuboperations: (\n" + opstring + "\n)\n}";
+      }
+      return "ECreateOperation{" + type + ": '" + varstring + "'}";
     }
 
     public override EVariable Exec(EScope scope)
     {
-      EVariable newVar = EVariable.New(type);
-      scope.Set(name.ToString(), newVar);
+      EVariable newVar = new EVVoid();
 
-      if (alsoAssign != null)
+      foreach (EWord variable in variables)
       {
-        alsoAssign.Exec(scope);
+        newVar = EVariable.New(type);
+        scope.Set(variable.ToString(), newVar);
+      }
+
+      if (assignOperations != null)
+      {
+        foreach (EAssignOperation assignOp in assignOperations)
+        {
+          assignOp.Exec(scope);
+        }
       }
 
       return newVar;
