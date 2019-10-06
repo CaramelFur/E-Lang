@@ -106,11 +106,17 @@ namespace E_Lang.lexer
     // these are single function arguments seperated by commas and surrounded by braces
     static readonly Parser<EFunctionArgument[]> FunctionArguments =
       (
-        from arguments in FunctionArgument
+        (
+          from arguments in FunctionArgument
           .DelimitedBy(Comma)
           .Optional()
           .Contained(ParenthesesOpen, ParenthesesClose)
-        select arguments.IsDefined ? arguments.Get().ToArray() : new EFunctionArgument[] { }
+          select arguments.IsDefined ? arguments.Get().ToArray() : new EFunctionArgument[] { }
+        )
+        .Or(
+          from argument in FunctionArgument.Token()
+          select new EFunctionArgument[] { argument }
+        )
       ).Named("Function Arguments");
 
     // Parses a create variable operation

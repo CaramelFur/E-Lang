@@ -104,13 +104,13 @@ namespace E_Lang.lexer
     static readonly Parser<ESExpression[]> CallArguments =
       (
         from open in EParser.BraceOpen
-        from expressionArguments in
-          BeginExpression()
+        from expressionArgs in
+          Parse.Ref(() => BeginExpression)
           .Named("Call Argument")
           .DelimitedBy(EParser.Comma)
           .Optional()
         from close in EParser.BraceClose
-        select expressionArguments.IsDefined ? expressionArguments.Get().ToArray() : new ESExpression[] { }
+        select expressionArgs.IsDefined ? expressionArgs.Get().ToArray() : new ESExpression[] { }
       ).Named("Call Arguments");
 
     // Parses a call operation, this operation solves its given arguments and then call the specified function
@@ -134,7 +134,7 @@ namespace E_Lang.lexer
       (
         (
           from lparen in EParser.ParenthesesOpen
-          from expr in Parse.Ref(() => BeginExpression())
+          from expr in Parse.Ref(() => BeginExpression)
           from rparen in EParser.ParenthesesClose
           select expr
         )
@@ -179,7 +179,7 @@ namespace E_Lang.lexer
     static Parser<ESExpression> AssignMove(Parser<ESExpression> input) =>
       Parse.ChainRightOperator(MoveOp.Or(Assign), input, ESExpression.CombineExpression);
 
-    static Parser<ESExpression> BeginExpression()
+    static Parser<ESExpression> BeginExpressionFactory()
     {
       Func<Parser<ESExpression>, Parser<ESExpression>>[] functions =
         new Func<Parser<ESExpression>, Parser<ESExpression>>[] {
@@ -197,9 +197,11 @@ namespace E_Lang.lexer
       return accumulated;
     }
 
+    static readonly Parser<ESExpression> BeginExpression = BeginExpressionFactory();
+
     // Fully parse a solvable
     public static Parser<ESolvable> ESolvable =
-      BeginExpression()
+      BeginExpression
       .Named("Solvable")
       .Select(solvable => new ESolvable(solvable));
   }
