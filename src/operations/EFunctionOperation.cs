@@ -9,11 +9,11 @@ namespace E_Lang.operations
   public class EFunctionOperation : EOperation
   {
     private readonly ETypeNameKey[] arguments = { };
-    private readonly EType type;
+    private readonly ETypeWord type;
     private readonly EWord name;
     private readonly EProgram program;
 
-    public EFunctionOperation(EWord name, EType type, ETypeNameKey[] arguments, EOperation[] operations)
+    public EFunctionOperation(EWord name, ETypeWord type, ETypeNameKey[] arguments, EOperation[] operations)
     {
       this.name = name;
       this.type = type;

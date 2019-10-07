@@ -1,9 +1,9 @@
+using System;
 using System.Linq;
 using Sprache;
 
 using E_Lang.types;
 using E_Lang.operations;
-using E_Lang.functions;
 using E_Lang.solvable;
 
 namespace E_Lang.lexer
@@ -56,25 +56,42 @@ namespace E_Lang.lexer
     // Comment parser
     static readonly CommentParser Comment = new CommentParser("#", "###", "###", "\n");
 
+    static Parser<EType> ParseETypeFactory()
+    {
+      EType[] types = Enum.GetValues(typeof(EType)).Cast<EType>().ToArray();
+
+      Parser<EType> buffer = null;
+
+      foreach (EType type in types)
+      {
+        string stringType = type.ToString().ToLower();
+
+        if (buffer == null)
+        {
+          buffer = Parse.String(stringType).Select((s) => type);
+        }
+        else
+        {
+          buffer = buffer.Or(
+            Parse.String(stringType).Select((s) => type)
+          );
+        }
+      }
+
+      return buffer;
+    }
+
+    static readonly Parser<EType> ParseEType = ParseETypeFactory();
+
     // Parser for types that you assign and create
-    static readonly Parser<EType> CreateableType =
+    static readonly Parser<ETypeWord> CreateableType =
       (
-        from typeName in
-          Parse.String("int")
-          .Or(Parse.String("double"))
-          .Or(Parse.String("boolean"))
-          .Or(Parse.String("void"))
-          .Text()
-        select new EType(typeName)
+        from typeName in ParseEType
+        select new ETypeWord(typeName)
       ).Named("Createable Type");
-    // Parser for the other types (Disabled for now)
-    static readonly Parser<EType> UsableType =
-      (
-        from typeName in Parse.String("Function").Text()
-        select new EType(typeName)
-      ).Named("Usable Type");
+
     // Parser for all types
-    static readonly Parser<EType> Type = CreateableType.Named("EType"); //.Or(UsableType);
+    static readonly Parser<ETypeWord> Type = CreateableType.Named("EType"); //.Or(UsableType);
 
     // A reference to the solvable in ESolvableParser.cs
     static readonly Parser<ESolvable> Solvable = Parse.Ref(() => ESolvableParser.ESolvable);

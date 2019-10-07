@@ -1,12 +1,10 @@
-function int: n -> int : fib <- {
+function int: n -> int : fib <-
   if n <= 1 -> 
     n;
   else 
     {n - 1} -> fib
     +
     {n - 2} -> fib;
-  
-}
 
 create int: n <- 9;
 

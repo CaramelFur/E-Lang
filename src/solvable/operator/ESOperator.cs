@@ -10,9 +10,9 @@ namespace E_Lang.solvable
   {
     private readonly string op;
 
-    protected readonly EType returnType = null;
+    protected readonly ETypeWord returnType = null;
 
-    public ESOperator(string op, EType returnType)
+    public ESOperator(string op, ETypeWord returnType)
     {
       this.op = op;
       this.returnType = returnType;

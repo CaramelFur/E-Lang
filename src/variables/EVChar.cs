@@ -2,13 +2,13 @@ using E_Lang.types;
 
 namespace E_Lang.variables
 {
-  public class EVInt : EVariable
+  public class EVChar : EVariable
   {
-    private int value;
+    private char value;
 
     public override EVariable Assign(EVariable assign)
     {
-      EVInt converted = (EVInt)assign.Convert(GetEType());
+      EVChar converted = (EVChar)assign.Convert(GetEType());
       value = converted.Get();
       return this;
     }
@@ -19,12 +19,11 @@ namespace E_Lang.variables
       {
         case EType.Double:
           return ((EVDouble)New(to)).Set(value);
-        case EType.Char:
-          return ((EVChar)New(to)).Set((char)value);
+        case EType.Int:
+          return ((EVInt)New(to)).Set(value);
         case EType.Boolean:
           return ((EVBoolean)New(to)).Set(value != 0);
       }
-
       return null;
     }
 

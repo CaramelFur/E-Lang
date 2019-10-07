@@ -10,7 +10,7 @@ namespace E_Lang.solvable
   {
     private readonly ExpressionType type;
 
-    public ESOLinq(string op, ExpressionType type, EType returnType) :
+    public ESOLinq(string op, ExpressionType type, ETypeWord returnType) :
       base(op, returnType)
     {
       this.type = type;
@@ -19,8 +19,8 @@ namespace E_Lang.solvable
     public override EVariable Solve(EVariable first, EVariable second)
     {
       // Solve equations with high precision
-      if (first is EVInt) first = first.Convert("double");
-      if (second is EVInt) second = second.Convert("double");
+      if (first is EVInt) first = first.Convert(EType.Double);
+      if (second is EVInt) second = second.Convert(EType.Double);
 
       Expression toSolve = Expression.MakeBinary(
         type,

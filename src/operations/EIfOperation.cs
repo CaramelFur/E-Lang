@@ -34,7 +34,7 @@ namespace E_Lang.operations
 
     public override EVariable Exec(EScope scope)
     {
-      EVBoolean solved = (EVBoolean)check.Solve(scope).Convert(new EType("boolean"));
+      EVBoolean solved = (EVBoolean)check.Solve(scope).Convert(EType.Boolean);
 
       if (solved.Get())
       {

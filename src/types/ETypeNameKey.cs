@@ -2,10 +2,10 @@ namespace E_Lang.types
 {
   public class ETypeNameKey
   {
-    private readonly EType type;
+    private readonly ETypeWord type;
     private readonly EWord variable;
 
-    public ETypeNameKey(EWord name, EType type)
+    public ETypeNameKey(EWord name, ETypeWord type)
     {
       variable = name;
       this.type = type;
@@ -21,7 +21,7 @@ namespace E_Lang.types
       return variable;
     }
 
-    public EType GetEType()
+    public ETypeWord GetEType()
     {
       return type;
     }

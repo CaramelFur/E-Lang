@@ -13,12 +13,6 @@ namespace E_Lang.variables
       return this;
     }
 
-    public override EVariable Convert(EType to)
-    {
-      if (GetEType().ToString() == to.ToString()) return this;
-      return CannotConvert(to);
-    }
-
     public override dynamic Get()
     {
       return value;

@@ -11,17 +11,17 @@ namespace E_Lang.operations
   public class ECreateOperation : EOperation
   {
     private readonly EWord[] variables;
-    private readonly EType type;
+    private readonly ETypeWord type;
 
     private readonly EAssignOperation[] assignOperations = null;
 
-    public ECreateOperation(EWord[] variables, EType type)
+    public ECreateOperation(EWord[] variables, ETypeWord type)
     {
       this.variables = variables;
       this.type = type;
     }
 
-    public ECreateOperation(EWord[] variables, EType type, ESolvable assign) : this(variables, type)
+    public ECreateOperation(EWord[] variables, ETypeWord type, ESolvable assign) : this(variables, type)
     {
       assignOperations = variables.Select(variable => new EAssignOperation(variable, assign)).ToArray();
     }

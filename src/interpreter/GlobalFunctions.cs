@@ -16,8 +16,8 @@ namespace E_Lang.interpreter
     {
       scope.SetFunction("log",
         new EGlobalFunction(
-          new EWord("log"),
-          new EType("void"),
+          "log",
+          EType.Void,
           (EScope subScope, ESolvable[] args) => {
             EVariable[] variables = args.Select(arg => arg.Solve(subScope)).ToArray();
             string toLog = variables.Aggregate("", (prev, next) => {

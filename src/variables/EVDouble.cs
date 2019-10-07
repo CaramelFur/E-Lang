@@ -13,18 +13,19 @@ namespace E_Lang.variables
       return this;
     }
 
-    public override EVariable Convert(EType to)
+    protected override EVariable ConvertInternal(ETypeWord to)
     {
-      switch (to.ToString())
+      switch (to.Get())
       {
-        case "int":
+        case EType.Int:
           return ((EVInt)New(to)).Set((int)value);
-        case "boolean":
+        case EType.Char:
+          return ((EVChar)New(to)).Set((char)value);
+        case EType.Boolean:
           return ((EVBoolean)New(to)).Set(value != 0);
       }
 
-      if (GetEType().ToString() == to.ToString()) return this;
-      return CannotConvert(to);
+      return null;
     }
 
     public override dynamic Get()

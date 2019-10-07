@@ -12,11 +12,6 @@ namespace E_Lang.variables
       throw new Exception("Shoulnt have thrown this");
     }
 
-    public override EVariable Convert(EType to)
-    {
-      return CannotConvert(to);
-    }
-
     public override string ToString()
     {
       return "void";

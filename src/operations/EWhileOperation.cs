@@ -31,7 +31,7 @@ namespace E_Lang.operations
       Func<bool> checkVar = () => (
         (EVBoolean)
         check.Solve(scope)
-        .Convert(new EType("boolean"))
+        .Convert(EType.Boolean)
       ).Get();
 
       EVariable output = new EVVoid();

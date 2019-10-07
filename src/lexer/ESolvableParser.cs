@@ -11,7 +11,7 @@ namespace E_Lang.lexer
   class ESolvableParser
   {
     // Parse a math token and return the appropiate operator
-    static Parser<ESOperator> SimpleOperator(string op, string not, ExpressionType opType, string returnType)
+    static Parser<ESOperator> SimpleOperator(string op, string not, ExpressionType opType, EType returnType)
     {
       return
         from begin in
@@ -23,22 +23,22 @@ namespace E_Lang.lexer
 
     static Parser<ESOperator> SimpleOperator(string op, string not, ExpressionType opType)
     {
-      return SimpleOperator(op, not, opType, "double");
+      return SimpleOperator(op, not, opType, EType.Double);
     }
 
-    static Parser<ESOperator> SimpleOperator(string op, ExpressionType opType, string returnType)
+    static Parser<ESOperator> SimpleOperator(string op, ExpressionType opType, EType returnType)
     {
       return
         Parse
         .String(op)
         .Token()
         .Named("Solvable Operator")
-        .Return(new ESOLinq(op, opType, new EType(returnType)));
+        .Return(new ESOLinq(op, opType, new ETypeWord(returnType)));
     }
 
     static Parser<ESOperator> SimpleOperator(string op, ExpressionType opType)
     {
-      return SimpleOperator(op, opType, "double");
+      return SimpleOperator(op, opType, EType.Double);
     }
 
     static Parser<ESOperator> AssignOperator(string op, AssignType opType)
@@ -62,16 +62,16 @@ namespace E_Lang.lexer
     static readonly Parser<ESOperator> Modulo = SimpleOperator("%", ExpressionType.Modulo);
 
     // Condidtional operations
-    static readonly Parser<ESOperator> And = SimpleOperator("&&", ExpressionType.AndAlso, "boolean");
-    static readonly Parser<ESOperator> Or = SimpleOperator("||", ExpressionType.OrElse, "boolean");
+    static readonly Parser<ESOperator> And = SimpleOperator("&&", ExpressionType.AndAlso, EType.Boolean);
+    static readonly Parser<ESOperator> Or = SimpleOperator("||", ExpressionType.OrElse, EType.Boolean);
 
     // Comparison operations
-    static readonly Parser<ESOperator> Equal = SimpleOperator("==", ExpressionType.Equal, "boolean");
-    static readonly Parser<ESOperator> NotEqual = SimpleOperator("!=", ExpressionType.NotEqual, "boolean");
-    static readonly Parser<ESOperator> GreaterThanOrEqual = SimpleOperator(">=", ExpressionType.GreaterThanOrEqual, "boolean");
-    static readonly Parser<ESOperator> LessThanOrEqual = SimpleOperator("<=", ExpressionType.LessThanOrEqual, "boolean");
-    static readonly Parser<ESOperator> GreaterThan = SimpleOperator(">", ExpressionType.GreaterThan, "boolean");
-    static readonly Parser<ESOperator> LessThan = SimpleOperator("<", "-", ExpressionType.LessThan, "boolean");
+    static readonly Parser<ESOperator> Equal = SimpleOperator("==", ExpressionType.Equal, EType.Boolean);
+    static readonly Parser<ESOperator> NotEqual = SimpleOperator("!=", ExpressionType.NotEqual, EType.Boolean);
+    static readonly Parser<ESOperator> GreaterThanOrEqual = SimpleOperator(">=", ExpressionType.GreaterThanOrEqual, EType.Boolean);
+    static readonly Parser<ESOperator> LessThanOrEqual = SimpleOperator("<=", ExpressionType.LessThanOrEqual, EType.Boolean);
+    static readonly Parser<ESOperator> GreaterThan = SimpleOperator(">", ExpressionType.GreaterThan, EType.Boolean);
+    static readonly Parser<ESOperator> LessThan = SimpleOperator("<", "-", ExpressionType.LessThan, EType.Boolean);
 
     // Assign operations
     static readonly Parser<ESOperator> Assign = AssignOperator("=", AssignType.Assign);

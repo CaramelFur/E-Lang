@@ -11,11 +11,11 @@ namespace E_Lang.functions
   public class ECustomFunction : EFunction
   {
     private readonly ETypeNameKey[] arguments;
-    private readonly EType type;
+    private readonly ETypeWord type;
     private readonly EWord name;
     private readonly EProgram program;
 
-    public ECustomFunction(EWord name, EType type, EProgram program, ETypeNameKey[] arguments)
+    public ECustomFunction(EWord name, ETypeWord type, EProgram program, ETypeNameKey[] arguments)
     {
       this.name = name;
       this.type = type;
@@ -23,7 +23,7 @@ namespace E_Lang.functions
       this.program = program;
     }
 
-    public ECustomFunction(EWord name, EType type, EProgram program) : this(name, type, program, new ETypeNameKey[] { })
+    public ECustomFunction(EWord name, ETypeWord type, EProgram program) : this(name, type, program, new ETypeNameKey[] { })
     { }
 
     public override string ToString()
@@ -47,7 +47,7 @@ namespace E_Lang.functions
       for (int i = 0; i < arguments.Length; i++)
       {
         string argname = arguments[i].GetVariable().ToString();
-        EType argtype = arguments[i].GetEType();
+        ETypeWord argtype = arguments[i].GetEType();
 
         EVariable solved = EVariable.New(argtype).Assign(args[i].Solve(lowerScope));
         lowerScope.Set(argname, solved);
