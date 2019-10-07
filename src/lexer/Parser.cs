@@ -11,7 +11,8 @@ namespace E_Lang.lexer
   public class EParser
   {
     // Base characters
-    public static readonly Parser<string> Space = Parse.Text(Parse.WhiteSpace.AtLeastOnce()).Named("Space");
+    public static readonly Parser<string> Space = Parse.WhiteSpace.AtLeastOnce().Text().Named("Space");
+    public static readonly Parser<string> ColonEquals = Parse.Token(Parse.String(":=")).Text().Named("SetColon");
     public static readonly Parser<char> Colon = Parse.Token(Parse.Char(':')).Named("Colon");
     public static readonly Parser<char> Comma = Parse.Token(Parse.Char(',')).Named("Comma");
     public static readonly Parser<char> EndLine = Parse.Token(Parse.Char(';')).Named("Semicolon");
@@ -145,7 +146,7 @@ namespace E_Lang.lexer
         from colon in Parse.Token(Parse.Char(':'))
         from names in Word.DelimitedBy(Comma)
         from assign in (
-          from arrow in ArrowLeft
+          from set in ColonEquals.Token()
           from solvable in Solvable
           select solvable
         ).Optional()
@@ -161,7 +162,7 @@ namespace E_Lang.lexer
       (
         from keyword in Parse.String("if")
         from solvable in Solvable
-        from arrow in ArrowRight
+        from set in ColonEquals
         from operations in SubProgram
         from elseOperations in (
           from elseWord in Parse.String("else").Token()
@@ -175,11 +176,11 @@ namespace E_Lang.lexer
       ).Named("If Operation");
 
     // Parses a while statement, this is a looping if statement
-    static readonly Parser<EWhileOperation> WhileOperation =
+    public static readonly Parser<EWhileOperation> WhileOperation =
       (
         from keyword in Parse.String("while")
         from solvable in Solvable
-        from arrow in ArrowRight
+        from set in ColonEquals
         from operations in SubProgram
         select new EWhileOperation(solvable, operations)
       ).Named("While Operation");
@@ -193,7 +194,7 @@ namespace E_Lang.lexer
         from type in CreateableType
         from colon in Colon
         from name in Word
-        from leftarrow in ArrowLeft
+        from set in ColonEquals
         from operations in SubProgram
         select new EFunctionOperation(name, type, arguments, operations)
       ).Named("Function Operation");

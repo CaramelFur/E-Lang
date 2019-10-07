@@ -17,7 +17,7 @@ namespace E_Lang.lexer
         from begin in
           SimpleOperator(op, opType, returnType)
         from end in
-          Parse.String(not).Not()
+          Parse.Chars(not).Not()
         select begin;
     }
 
@@ -55,7 +55,7 @@ namespace E_Lang.lexer
 
     // Simple integer operations
     static readonly Parser<ESOperator> Add = SimpleOperator("+", ExpressionType.AddChecked);
-    static readonly Parser<ESOperator> Subtract = SimpleOperator("-", ExpressionType.SubtractChecked);
+    static readonly Parser<ESOperator> Subtract = SimpleOperator("-", ">", ExpressionType.SubtractChecked);
     static readonly Parser<ESOperator> Multiply = SimpleOperator("*", ExpressionType.MultiplyChecked);
     static readonly Parser<ESOperator> Divide = SimpleOperator("/", ExpressionType.Divide);
     static readonly Parser<ESOperator> Power = SimpleOperator("^", ExpressionType.Power);
@@ -74,8 +74,8 @@ namespace E_Lang.lexer
     static readonly Parser<ESOperator> LessThan = SimpleOperator("<", "-", ExpressionType.LessThan, EType.Boolean);
 
     // Assign operations
-    static readonly Parser<ESOperator> Assign = AssignOperator("=", AssignType.Assign);
-    static readonly Parser<ESOperator> MoveOp = AssignOperator("<-", AssignType.Move);
+    static readonly Parser<ESOperator> Assign = AssignOperator("=>", AssignType.Assign);
+    static readonly Parser<ESOperator> MoveOp = AssignOperator("->", AssignType.Move);
 
     // Parse a decimal number
     static readonly Parser<ESNumber> Number =
@@ -102,28 +102,41 @@ namespace E_Lang.lexer
     // They consist of zero or more solvables seperated by commas
     // And they are contained by braces
     static readonly Parser<ESExpression[]> CallArguments =
-      (
-        from open in EParser.BraceOpen
-        from expressionArgs in
-          Parse.Ref(() => BeginExpression)
-          .Named("Call Argument")
-          .DelimitedBy(EParser.Comma)
-          .Optional()
-        from close in EParser.BraceClose
-        select expressionArgs.IsDefined ? expressionArgs.Get().ToArray() : new ESExpression[] { }
+      Parse.Or(
+        Parse.Ref(() => BeginExpression)
+          .Select(e => new ESExpression[] { e })
+          .Named("Call Argument"),
+        (
+          from open in EParser.BraceOpen
+          from expressionArgs in
+            Parse.Ref(() => BeginExpression)
+            .Named("Call Argument")
+            .DelimitedBy(EParser.Comma)
+            .Optional()
+          from close in EParser.BraceClose
+          select expressionArgs.IsDefined ? expressionArgs.Get().ToArray() : new ESExpression[] { }
+        )
       ).Named("Call Arguments");
 
     // Parses a call operation, this operation solves its given arguments and then call the specified function
     // It can also immediately assign its result to a new variable
     public static readonly Parser<ESExpression> FuncCall =
       (
-        from arguments in CallArguments
-        from arrow in EParser.ArrowRight
         from word in EParser.Word
+        from arrow in EParser.ArrowLeft
+        from arguments in CallArguments
         select new ESCall(word, arguments)
       ).Named("Call Operation");
 
     // === Start operations
+
+    static readonly Parser<ESExpression> SimpleSubExpression =
+      FuncCall
+      .Or(Number)
+      .Or(Boolean)
+      .Or(Variable)
+      .Token()
+      .Named("Simple Expression");
 
     // Parse an expression, this can be:
     // - Another expression surrounded by parentheses
@@ -138,10 +151,7 @@ namespace E_Lang.lexer
           from rparen in EParser.ParenthesesClose
           select expr
         )
-        .Or(FuncCall)
-        .Or(Number)
-        .Or(Boolean)
-        .Or(Variable)
+        .Or(SimpleSubExpression)
       )
       .Token()
       .Named("Solvable Expression");
@@ -177,7 +187,7 @@ namespace E_Lang.lexer
     // Parse assing operations
     // This operation is right associative
     static Parser<ESExpression> AssignMove(Parser<ESExpression> input) =>
-      Parse.ChainRightOperator(MoveOp.Or(Assign), input, ESExpression.CombineExpression);
+      Parse.ChainOperator(MoveOp.Or(Assign), input, ESExpression.CombineExpression);
 
     static Parser<ESExpression> BeginExpressionFactory()
     {

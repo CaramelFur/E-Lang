@@ -1,13 +1,13 @@
-function int: n -> int : fib <-
-  if n <= 1 -> 
+function int: n -> int : fib :=
+  if n <= 1 := 
     n;
   else 
-    {n - 1} -> fib
+    fib <- {n - 1}
     +
-    {n - 2} -> fib;
+    fib <- {n - 2};
 
-create int: n <- 9;
+create int: n := 9;
 
-create int: out <- {n} -> fib;
+create int: out := fib <- n;
 
-{out} -> log;
+log <- out;

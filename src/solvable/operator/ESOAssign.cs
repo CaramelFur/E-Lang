@@ -28,11 +28,11 @@ namespace E_Lang.solvable
       switch (type)
       {
         case AssignType.Assign:
-          first.Assign(second);
-          return first;
+          second.Assign(first);
+          return second;
         case AssignType.Move:
-          EVariable temp = first.Clone();
-          first.Assign(second);
+          EVariable temp = second.Clone();
+          second.Assign(first);
           return temp;
         default:
           throw new Exception("Invalid Assigntype: " + type);

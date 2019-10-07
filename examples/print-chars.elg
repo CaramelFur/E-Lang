@@ -1,0 +1,3 @@
+create char: loop := 0;
+
+while loop < 255 := log <- loop + 1 -> loop;
