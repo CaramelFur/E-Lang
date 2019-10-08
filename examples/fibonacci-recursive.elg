@@ -2,9 +2,9 @@ function int: n -> int : fib :=
   if n <= 1 := 
     n;
   else 
-    fib <- {n - 1}
+    fib <- {n - 1} @ int
     +
-    fib <- {n - 2};
+    fib <- {n - 2} @ int;
 
 create int: n := 9;
 

@@ -82,7 +82,7 @@ namespace E_Lang.lexer
       return buffer;
     }
 
-    static readonly Parser<EType> ParseEType = ParseETypeFactory();
+    public static readonly Parser<EType> ParseEType = ParseETypeFactory();
 
     // Parser for types that you assign and create
     static readonly Parser<ETypeWord> CreateableType =

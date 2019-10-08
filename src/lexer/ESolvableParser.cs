@@ -51,6 +51,16 @@ namespace E_Lang.lexer
         .Return(new ESOAssign(op, opType));
     }
 
+    static Parser<ESOperator> ConvertOperator(string op)
+    {
+      return
+        Parse
+        .String(op)
+        .Token()
+        .Named("Solvable Operator")
+        .Return(new ESOConvert(op));
+    }
+
     // ==== Start words
 
     // Simple integer operations
@@ -77,6 +87,9 @@ namespace E_Lang.lexer
     static readonly Parser<ESOperator> Assign = AssignOperator("=>", AssignType.Assign);
     static readonly Parser<ESOperator> MoveOp = AssignOperator("->", AssignType.Move);
 
+    // Convert operations
+     static readonly Parser<ESOperator> CastOp = ConvertOperator("@");
+
     // Parse a decimal number
     static readonly Parser<ESNumber> Number =
       (
@@ -97,6 +110,13 @@ namespace E_Lang.lexer
         from word in EParser.SimpleWord
         select new ESVariable(word)
       ).Named("Solvable Variable");
+
+    // Parse a type, this is a simple word
+    static readonly Parser<ESType> Type =
+      (
+        from type in EParser.ParseEType
+        select new ESType(type)
+      ).Named("Type");
 
     // These are the arguments passed while calling a function
     // They consist of zero or more solvables seperated by commas
@@ -134,6 +154,7 @@ namespace E_Lang.lexer
       FuncCall
       .Or(Number)
       .Or(Boolean)
+      .Or(Type)
       .Or(Variable)
       .Token()
       .Named("Simple Expression");
@@ -155,6 +176,13 @@ namespace E_Lang.lexer
       )
       .Token()
       .Named("Solvable Expression");
+
+    // Parse convert operations
+    static Parser<ESExpression> Casts(Parser<ESExpression> input) => Parse.ChainOperator(
+      CastOp,
+      input,
+      ESExpression.CombineExpression
+    );
 
     // Parse all comparison operations
     static Parser<ESExpression> Comparisons(Parser<ESExpression> input) => Parse.ChainOperator(
@@ -194,6 +222,7 @@ namespace E_Lang.lexer
       Func<Parser<ESExpression>, Parser<ESExpression>>[] functions =
         new Func<Parser<ESExpression>, Parser<ESExpression>>[] {
           SubExpression,
+          Casts,
           PowerRoot,
           MultiplyDivideModulo,
           AddSubtract,
