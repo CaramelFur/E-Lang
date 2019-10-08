@@ -10,35 +10,25 @@ namespace E_Lang.lexer
 {
   class ESolvableParser
   {
-    // Parse a math token and return the appropiate operator
-    static Parser<ESOperator> SimpleOperator(string op, string not, ExpressionType opType, EType returnType)
+
+    static Parser<ESOperator> SimpleOperator(string op, string not, ESOSimpleType opType)
     {
       return
         from begin in
-          SimpleOperator(op, opType, returnType)
+          SimpleOperator(op, opType)
         from end in
           Parse.Chars(not).Not()
         select begin;
     }
 
-    static Parser<ESOperator> SimpleOperator(string op, string not, ExpressionType opType)
-    {
-      return SimpleOperator(op, not, opType, EType.Double);
-    }
-
-    static Parser<ESOperator> SimpleOperator(string op, ExpressionType opType, EType returnType)
+    static Parser<ESOperator> SimpleOperator(string op, ESOSimpleType opType)
     {
       return
         Parse
         .String(op)
         .Token()
         .Named("Solvable Operator")
-        .Return(new ESOLinq(op, opType, new ETypeWord(returnType)));
-    }
-
-    static Parser<ESOperator> SimpleOperator(string op, ExpressionType opType)
-    {
-      return SimpleOperator(op, opType, EType.Double);
+        .Return(new ESOSimple(op, opType));
     }
 
     static Parser<ESOperator> AssignOperator(string op, AssignType opType)
@@ -64,24 +54,24 @@ namespace E_Lang.lexer
     // ==== Start words
 
     // Simple integer operations
-    static readonly Parser<ESOperator> Add = SimpleOperator("+", ExpressionType.AddChecked);
-    static readonly Parser<ESOperator> Subtract = SimpleOperator("-", ">", ExpressionType.SubtractChecked);
-    static readonly Parser<ESOperator> Multiply = SimpleOperator("*", ExpressionType.MultiplyChecked);
-    static readonly Parser<ESOperator> Divide = SimpleOperator("/", ExpressionType.Divide);
-    static readonly Parser<ESOperator> Power = SimpleOperator("^", ExpressionType.Power);
-    static readonly Parser<ESOperator> Modulo = SimpleOperator("%", ExpressionType.Modulo);
+    static readonly Parser<ESOperator> Add = SimpleOperator("+", ESOSimpleType.Add);
+    static readonly Parser<ESOperator> Subtract = SimpleOperator("-", ">", ESOSimpleType.Subtract);
+    static readonly Parser<ESOperator> Multiply = SimpleOperator("*", ESOSimpleType.Multiply);
+    static readonly Parser<ESOperator> Divide = SimpleOperator("/", ESOSimpleType.Divide);
+    static readonly Parser<ESOperator> Power = SimpleOperator("^", ESOSimpleType.Power);
+    static readonly Parser<ESOperator> Modulo = SimpleOperator("%", ESOSimpleType.Modulo);
 
     // Condidtional operations
-    static readonly Parser<ESOperator> And = SimpleOperator("&&", ExpressionType.AndAlso, EType.Boolean);
-    static readonly Parser<ESOperator> Or = SimpleOperator("||", ExpressionType.OrElse, EType.Boolean);
+    static readonly Parser<ESOperator> And = SimpleOperator("&&", ESOSimpleType.AndAlso);
+    static readonly Parser<ESOperator> Or = SimpleOperator("||", ESOSimpleType.OrElse);
 
     // Comparison operations
-    static readonly Parser<ESOperator> Equal = SimpleOperator("==", ExpressionType.Equal, EType.Boolean);
-    static readonly Parser<ESOperator> NotEqual = SimpleOperator("!=", ExpressionType.NotEqual, EType.Boolean);
-    static readonly Parser<ESOperator> GreaterThanOrEqual = SimpleOperator(">=", ExpressionType.GreaterThanOrEqual, EType.Boolean);
-    static readonly Parser<ESOperator> LessThanOrEqual = SimpleOperator("<=", ExpressionType.LessThanOrEqual, EType.Boolean);
-    static readonly Parser<ESOperator> GreaterThan = SimpleOperator(">", ExpressionType.GreaterThan, EType.Boolean);
-    static readonly Parser<ESOperator> LessThan = SimpleOperator("<", "-", ExpressionType.LessThan, EType.Boolean);
+    static readonly Parser<ESOperator> Equal = SimpleOperator("==", ESOSimpleType.Equal);
+    static readonly Parser<ESOperator> NotEqual = SimpleOperator("!=", ESOSimpleType.NotEqual);
+    static readonly Parser<ESOperator> GreaterThanOrEqual = SimpleOperator(">=", ESOSimpleType.GreaterThanOrEqual);
+    static readonly Parser<ESOperator> LessThanOrEqual = SimpleOperator("<=", ESOSimpleType.LessThanOrEqual);
+    static readonly Parser<ESOperator> GreaterThan = SimpleOperator(">", ESOSimpleType.GreaterThan);
+    static readonly Parser<ESOperator> LessThan = SimpleOperator("<", "-", ESOSimpleType.LessThan);
 
     // Assign operations
     static readonly Parser<ESOperator> Assign = AssignOperator("=>", AssignType.Assign);

@@ -1,7 +1,3 @@
-using System;
-using System.Linq.Expressions;
-
-using E_Lang.types;
 using E_Lang.variables;
 
 namespace E_Lang.solvable
@@ -10,12 +6,9 @@ namespace E_Lang.solvable
   {
     private readonly string op;
 
-    protected readonly ETypeWord returnType = null;
-
-    public ESOperator(string op, ETypeWord returnType)
+    public ESOperator(string op)
     {
       this.op = op;
-      this.returnType = returnType;
     }
 
     public virtual EVariable Solve(EVariable first)
@@ -37,8 +30,7 @@ namespace E_Lang.solvable
     {
       if (detailed)
       {
-        if (returnType != null) return "ESOperator(" + returnType + ")[" + op + "]";
-        else return "ESOperator[" + op + "]";
+        return "ESOperator[" + op + "]";
       }
       else return op;
     }

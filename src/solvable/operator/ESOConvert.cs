@@ -11,7 +11,7 @@ namespace E_Lang.solvable
   {
 
     public ESOConvert(string op) :
-      base(op, null)
+      base(op)
     {
     }
 

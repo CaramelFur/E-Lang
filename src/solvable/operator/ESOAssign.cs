@@ -17,7 +17,7 @@ namespace E_Lang.solvable
     private readonly AssignType type;
 
     public ESOAssign(string op, AssignType type) :
-      base(op, null)
+      base(op)
     {
       this.type = type;
     }
