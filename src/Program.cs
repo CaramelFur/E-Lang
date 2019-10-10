@@ -17,7 +17,7 @@ namespace E_Lang
     {
       if (args.Length > 1)
       {
-        throw new Exception("Please do not supply more than 1 argument");
+        throw new ELangException("Please do not supply more than 1 argument");
       }
 
       Interpreter interpreter = new Interpreter();

@@ -40,7 +40,7 @@ namespace E_Lang.functions
     public override EVariable Exec(EScope scope, ESolvable[] args)
     {
       // TODO: output type casting
-      if (args.Length != arguments.Length) throw new Exception("Wrong amount of args for function " + name);
+      if (args.Length != arguments.Length) throw new ELangException("Wrong amount of args for function " + name);
 
       EScope lowerScope = scope.GetChild();
 

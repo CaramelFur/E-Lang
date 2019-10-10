@@ -95,7 +95,7 @@ namespace E_Lang.solvable
     public static EVariable Calc(ESOSimpleType type, EVariable a, EVariable b)
     {
       ESOSimpleTypeObject selected = dict[type];
-      if (selected == null) throw new Exception("Invalid operation: " + type.ToString());
+      if (selected == null) throw new ELangException("Invalid operation: " + type.ToString());
       return selected.Calc(a, b);
     }
   }

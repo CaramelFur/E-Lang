@@ -24,7 +24,7 @@ namespace E_Lang.variables
 
     public static EVariable New(EType type)
     {
-      if (!types.ContainsKey(type)) throw new Exception("Variable type " + type + " is unknown");
+      if (!types.ContainsKey(type)) throw new ELangException("Variable type " + type + " is unknown");
       Type createType = types[type];
       return (EVariable)Activator.CreateInstance(createType);
     }
@@ -43,7 +43,7 @@ namespace E_Lang.variables
 
     public virtual EVariable Assign(EVariable assign)
     {
-      throw new Exception("Cannot assign to abstract class");
+      throw new ELangException("Cannot assign to abstract class");
     }
 
     public EVariable Convert(EType to)
@@ -81,7 +81,7 @@ namespace E_Lang.variables
 
     protected EVariable CannotConvert(ETypeWord type)
     {
-      throw new Exception("Cannot convert " + type + " to " + GetEType());
+      throw new ELangException("Cannot convert " + type + " to " + GetEType());
     }
   }
 }

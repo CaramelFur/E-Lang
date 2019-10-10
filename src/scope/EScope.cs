@@ -37,7 +37,7 @@ namespace E_Lang.scope
       }
       catch 
       {
-        throw new Exception("The variable " + name + " has already been declared");
+        throw new ELangException("The variable " + name + " has already been declared");
       }
     }
 
@@ -45,7 +45,7 @@ namespace E_Lang.scope
     {
       if (!variables.ContainsKey(name))
       {
-        if (depth == 0) throw new Exception("Could not find the variable " + name);
+        if (depth == 0) throw new ELangException("Could not find the variable " + name);
         return parent.Get(name);
       }
       return variables[name];
@@ -59,7 +59,7 @@ namespace E_Lang.scope
       }
       catch 
       {
-        throw new Exception("The function " + name + " has already been declared");
+        throw new ELangException("The function " + name + " has already been declared");
       }
     }
 
@@ -67,7 +67,7 @@ namespace E_Lang.scope
     {
       if (!functions.ContainsKey(name))
       {
-        if (depth == 0) throw new Exception("Could not find the function " + name);
+        if (depth == 0) throw new ELangException("Could not find the function " + name);
         return parent.GetFunction(name);
       }
       return functions[name];

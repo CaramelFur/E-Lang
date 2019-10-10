@@ -9,7 +9,7 @@ namespace E_Lang.variables
     public override EVariable Assign(EVariable assign)
     {
       assign.Convert(GetEType());
-      throw new Exception("Shoulnt have thrown this");
+      throw new ELangException("Shoulnt have thrown this");
     }
 
     public override string ToString()

@@ -35,7 +35,7 @@ namespace E_Lang.solvable
           second.Assign(first);
           return temp;
         default:
-          throw new Exception("Invalid Assigntype: " + type);
+          throw new ELangException("Invalid Assigntype: " + type);
       }
     }
   }
