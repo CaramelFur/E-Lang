@@ -3,10 +3,13 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-    <RootNamespace>E_Lang</RootNamespace>
+    <NoWarn>
+      NU1701
+    </NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="LLVMSharp" Version="5.0.0" />
     <PackageReference Include="Sprache" Version="2.2.0" />
   </ItemGroup>
 
