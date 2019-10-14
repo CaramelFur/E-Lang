@@ -55,7 +55,7 @@ namespace E_Lang.lexer
       ).Named("Right Arrow");
 
     // Comment parser
-    static readonly CommentParser Comment = new CommentParser("#", "###", "###", "\n");
+    static readonly CommentParser Comment = new CommentParser("//", "/*", "*/", "\n");
 
     static Parser<EType> ParseETypeFactory()
     {
