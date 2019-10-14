@@ -8,7 +8,7 @@ public class ProgramN
   [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
   public delegate int Add(int a, int b);
 
-  private static void Main(string[] args)
+  private static void MainN(string[] args)
   {
     LLVMBool Success = new LLVMBool(0);
     LLVMModuleRef mod = LLVM.ModuleCreateWithName("LLVMSharpIntro");

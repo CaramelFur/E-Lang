@@ -4,7 +4,7 @@ using LLVMSharp;
 
 public class Program
 {
-  private static void Maine(string[] args)
+  private static void Main(string[] args)
   {
     var parsed = Parser.ParseExpression("2 + 4 -1");
     Console.WriteLine(parsed);
@@ -14,7 +14,7 @@ public class Program
     LLVMModuleRef module = LLVM.ModuleCreateWithName("Main");
 
     LLVMTypeRef[] param_types = { };
-    LLVMTypeRef ret_type = LLVM.FunctionType(LLVM.Int32Type(), param_types, false);
+    LLVMTypeRef ret_type = LLVM.FunctionType(LLVM.DoubleType(), param_types, false);
     LLVMValueRef sum = LLVM.AddFunction(module, "main", ret_type);
 
     LLVMBasicBlockRef entry = LLVM.AppendBasicBlock(sum, "entry");

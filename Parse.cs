@@ -56,7 +56,7 @@ public class TNumber : Solvable
 
   public override LLVMValueRef Solve(LLVMBuilderRef builder)
   {
-    return LLVM.ConstInt(LLVM.Int32Type(), (ulong)num, new LLVMBool(0));
+    return LLVM.ConstReal(LLVM.DoubleType(), (double) num);
   }
 
   public override string ToString()
