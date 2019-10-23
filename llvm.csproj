@@ -8,8 +8,12 @@
     </NoWarn>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="LLVMSharp" Version="5.0.0" />
+    <PackageReference Include="LLVMSharp" Version="8.0.0-beta" />
     <PackageReference Include="Sprache" Version="2.2.0" />
   </ItemGroup>
 
