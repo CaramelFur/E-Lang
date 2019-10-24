@@ -26,6 +26,7 @@ namespace E_Lang
 
       if (args.Length == 0)
       {
+        Console.WriteLine("Please supply a file");
         /*Interpreter interpreter = new Interpreter();
         while (true)
         {
@@ -47,19 +48,40 @@ namespace E_Lang
       }
       else if (args.Length == 1)
       {
+        string name = "E-Lang";
 
+        LLVMCompile linker = new LLVMCompile();
+
+        Console.WriteLine("Parsing...");
         EProgram program = readProgramAST(args[0]);
 
-        Console.WriteLine(program);
+        //Console.WriteLine(program);
 
-        LLVMHolder llvm = LLVMHolder.Create("E-Lang");
+        Console.WriteLine("Transpiling...");
+        LLVMHolder llvm = LLVMHolder.Create(name);
         Compiler compiler = new Compiler(llvm);
 
         compiler.Compile(program);
 
         llvm.Verify();
         llvm.Print();
+        string bitCodePath = linker.GetOutPath(name, "bc");
+        llvm.Dump(bitCodePath);
+        linker.SetBitCodePath(bitCodePath);
         llvm.Destroy();
+
+        Console.WriteLine("Compiling...");
+
+        string compileStatus = linker.CompileToBin(linker.GetOutPath(name));
+        
+        Console.WriteLine(compileStatus);
+
+        Console.WriteLine("Cleaning up...");
+
+        linker.Delete();
+
+        Console.WriteLine("Done!");
+
       }
       /* */
     }

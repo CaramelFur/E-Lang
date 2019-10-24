@@ -1,5 +1,6 @@
 using LLVMSharp;
 using System;
+using System.IO;
 using System.Collections.Generic;
 using E_Lang.scope;
 
@@ -8,6 +9,8 @@ namespace E_Lang.llvm
   public class LLVMHolder
   {
     private static readonly LLVMValueRef NullValue = new LLVMValueRef(IntPtr.Zero);
+
+    private readonly string name;
 
     private readonly LLVMModuleRef module;
     private readonly LLVMPassManagerRef passManager;
@@ -21,13 +24,14 @@ namespace E_Lang.llvm
       LLVMModuleRef module = LLVM.ModuleCreateWithName(name);
       LLVMPassManagerRef passManager = LLVMFuncs.GenPassManager(module);
 
-      return new LLVMHolder(passManager, module);
+      return new LLVMHolder(passManager, module, name);
     }
 
-    public LLVMHolder(LLVMPassManagerRef passRef, LLVMModuleRef moduleRef)
+    public LLVMHolder(LLVMPassManagerRef passRef, LLVMModuleRef moduleRef, string name)
     {
       passManager = passRef;
       module = moduleRef;
+      this.name = name;
     }
 
     public LLVMValueRef CreateMainFunc()
@@ -46,7 +50,8 @@ namespace E_Lang.llvm
       return builderStack.Peek();
     }
 
-    public EScope GetScope(){
+    public EScope GetScope()
+    {
       return scope;
     }
 
@@ -76,7 +81,7 @@ namespace E_Lang.llvm
     }
 
     public void Dump(string path)
-    {
+    {    
       LLVM.WriteBitcodeToFile(module, path);
     }
 

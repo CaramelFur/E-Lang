@@ -35,7 +35,6 @@ namespace E_Lang.compiler
         
       }
 
-Console.WriteLine(solved);
       llvm.Close(solved.Convert(EType.Int).Get());
       return llvm;
     }

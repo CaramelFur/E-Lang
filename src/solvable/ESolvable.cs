@@ -15,7 +15,7 @@ namespace E_Lang.solvable
 
     public EVariable Solve(LLVMHolder llvm)
     {
-      return expression.Solve(llvm);
+      return new EVInt(llvm).Assign(expression.Solve(llvm));
     }
 
     public override string ToString()

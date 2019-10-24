@@ -1,7 +1,6 @@
 using E_Lang.types;
 using E_Lang.variables;
 using E_Lang.llvm;
-using E_Lang.functions;
 
 namespace E_Lang.operations
 {
@@ -21,10 +20,6 @@ namespace E_Lang.operations
       program = new EProgram(operations);
     }
 
-    public ECustomFunction ToEFunction()
-    {
-      return new ECustomFunction(name, type, program, arguments);
-    }
 
     public override EVariable Exec(LLVMHolder llvm)
     {

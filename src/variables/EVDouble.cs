@@ -33,7 +33,6 @@ namespace E_Lang.variables
         case EType.Char:
         case EType.Boolean:
           convert = LLVM.BuildFPToUI(llvm.GetBuilder(), Get(), newvar.GetTypeRef(), llvm.GetNewName());
-          Console.WriteLine(newvar.ToString() +  newvar.GetTypeRef());
           return newvar.Set(convert);
       }
 
