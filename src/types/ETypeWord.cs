@@ -6,7 +6,8 @@ namespace E_Lang.types
     Int,
     Double,
     Char,
-    Boolean
+    Boolean,
+    Pointer
   }
 
   public class ETypeWord

@@ -14,7 +14,15 @@ namespace E_Lang.solvable
 
     public override EVariable Solve(LLVMHolder llvm)
     {
-      return new EVDouble(llvm).Set(number);
+      if (IsInteger())
+      {
+        return new EVInt(llvm).Set((int)number);
+      }
+      else
+      {
+        return new EVDouble(llvm).Set(number);
+      }
+
     }
 
     public override string ToString(bool detailed)

@@ -12,8 +12,7 @@ namespace E_Lang.solvable
 
     public override EVariable Solve(LLVMHolder llvm, EVariable first, EVariable second)
     {
-      throw new ELangException("no");
-      //return LLVM.cast;
+      return first.Convert(second.GetEType());
     }
   }
 

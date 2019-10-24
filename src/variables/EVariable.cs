@@ -29,7 +29,8 @@ namespace E_Lang.variables
       { EType.Double, typeof(EVDouble) },
       { EType.Boolean, typeof(EVBoolean) },
       { EType.Char, typeof(EVChar)},
-      { EType.Void, typeof(EVVoid) }
+      { EType.Void, typeof(EVVoid) },
+      { EType.Pointer, typeof(EVPointer) }
     };
 
     public static EVariable New(ETypeWord type, LLVMHolder llvm)
@@ -62,7 +63,7 @@ namespace E_Lang.variables
     }
 
     public EVariable Convert(ETypeWord to)
-    {
+    { 
       EVariable tryConvert = ConvertInternal(to);
       if (tryConvert != null) return tryConvert;
       if (GetEType().Get() == to.Get()) return this;
@@ -96,7 +97,7 @@ namespace E_Lang.variables
 
     protected EVariable CannotConvert(ETypeWord type)
     {
-      throw new ELangException("Cannot convert " + type + " to " + GetEType());
+      throw new ELangException("Cannot convert " + GetEType() + " to " + type);
     }
 
     protected EVariable IsUndefined()

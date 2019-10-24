@@ -51,6 +51,16 @@ namespace E_Lang.lexer
         .Return(new ESOConvert(op));
     }
 
+    static Parser<ESOperator> OtherOperator<T>(string op)
+    {
+      return
+        Parse
+        .String(op)
+        .Token()
+        .Named("Solvable Operator")
+        .Return((ESOperator)(Activator.CreateInstance(typeof(T), op)));
+    }
+
     // ==== Start words
 
     // Simple integer operations
@@ -73,12 +83,15 @@ namespace E_Lang.lexer
     static readonly Parser<ESOperator> GreaterThan = SimpleOperator(">", ESOSimpleType.GreaterThan);
     static readonly Parser<ESOperator> LessThan = SimpleOperator("<", "-", ESOSimpleType.LessThan);
 
+    // Unary
+    static readonly Parser<ESOperator> Pound = OtherOperator<ESOPointer>("#");
+
     // Assign operations
     static readonly Parser<ESOperator> Assign = AssignOperator("=>", AssignType.Assign);
     static readonly Parser<ESOperator> MoveOp = AssignOperator("->", AssignType.Move);
 
     // Convert operations
-     static readonly Parser<ESOperator> CastOp = ConvertOperator("@");
+    static readonly Parser<ESOperator> CastOp = ConvertOperator("@");
 
     // Parse a decimal number
     static readonly Parser<ESNumber> Number =
@@ -149,6 +162,15 @@ namespace E_Lang.lexer
       .Token()
       .Named("Simple Expression");
 
+    static readonly Parser<ESExpression> UnarySubExpression =
+      (
+        from op in Pound
+        from expr in SimpleSubExpression
+        select new ESSingleExpression(expr, op)
+      ).Named("Unary Expression");
+
+
+
     // Parse an expression, this can be:
     // - Another expression surrounded by parentheses
     // - A number
@@ -162,6 +184,7 @@ namespace E_Lang.lexer
           from rparen in EParser.ParenthesesClose
           select expr
         )
+        .Or(UnarySubExpression)
         .Or(SimpleSubExpression)
       )
       .Token()

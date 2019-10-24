@@ -23,10 +23,8 @@ namespace E_Lang.functions
     {
       if (name == "syscall")
       {
-        arguments[2] = EVPointer.Create(llvm, arguments[2]);
-
         LLVMTypeRef[] syscallArgTypes = arguments.Select(a => a.GetTypeRef()).ToArray();
-        SysCallGenFunc GeneratedSysCall = GenSyscall( syscallArgTypes);
+        SysCallGenFunc GeneratedSysCall = GenSyscall(syscallArgTypes);
 
         return GeneratedSysCall(llvm, arguments);
       }

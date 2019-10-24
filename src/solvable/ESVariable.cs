@@ -14,7 +14,7 @@ namespace E_Lang.solvable
 
     public override EVariable Solve(LLVMHolder llvm)
     {
-      throw new ELangException("no");
+      return llvm.GetScope().Get(name);
     }
 
     public override string ToString(bool detailed)

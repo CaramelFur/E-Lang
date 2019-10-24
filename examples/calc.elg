@@ -1,5 +1,8 @@
+create int: a := 69;
+create pointer: b := #a;
+
 1 + 2;
 
-syscall <- {1, 1, 69, 1};
+syscall <- {1, 1, b, 1};
 
 0;
