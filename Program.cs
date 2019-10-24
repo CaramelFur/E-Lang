@@ -13,40 +13,41 @@ public unsafe class Program
 
     Console.WriteLine("hello");
 
-    LLVMValueRef printAsm = LLVM.ConstInlineAsm(LLVM.Int32Type(), ConvToSbyte("bswap $0"), ConvToSbyte("=r,r"), 0, 0);
-    //LLVM.asm
-    Console.WriteLine("Building");
-    LLVM.DumpValue(printAsm);
-
-
-    Console.WriteLine("Building");
-
-    /*LLVMBool falseb = new LLVMBool(0);
+    LLVMBool falseb = new LLVMBool(0);
 
     LLVMModuleRef module = LLVM.ModuleCreateWithName("Main");
 
+    LLVMTypeRef charpointer = LLVM.PointerType(LLVM.Int8Type(), 0);
+    LLVMTypeRef[] putsparams = { charpointer };
+    LLVMTypeRef putstype = LLVM.FunctionType(LLVM.Int64Type(), putsparams, false);
+
+    LLVMValueRef putsfunc = LLVM.AddFunction(module, "printf", putstype);
+
+    //LLVM.AddAttributeAtIndex(putsfunc, 0, LLVMSharp.LLVM.attribute)
+
 
     LLVMTypeRef[] param_types = { };
-    LLVMTypeRef ret_type = LLVM.FunctionType(LLVM.DoubleType(), param_types, false);
+    LLVMTypeRef ret_type = LLVM.FunctionType(LLVM.Int8Type(), param_types, false);
 
     LLVMValueRef sum = LLVM.AddFunction(module, "main", ret_type);
     LLVMBasicBlockRef entry = LLVM.AppendBasicBlock(sum, "entry");
     LLVMBuilderRef builder = LLVM.CreateBuilder();
     LLVM.PositionBuilderAtEnd(builder, entry);
 
-    LLVMValueRef solved = parsed.Solve(builder);
 
-    LLVMValueRef toPrint = LLVM.BuildIntCast(builder, solved, LLVM.Int64Type(), "tempprint");
-    LLVMValueRef printOp = LLVM.BuildAdd(builder, LLVM.ConstInt(LLVM.Int64Type(), 1, falseb), LLVM.ConstInt(LLVM.Int64Type(), 0, falseb), "printop");
+    LLVMValueRef ep = LLVM.ConstInt(LLVM.Int8Type(), 69, false);
+    LLVMValueRef tp = LLVM.ConstInt(LLVM.Int8Type(), 0, false);
 
+    LLVMValueRef arr = LLVM.ConstArray(LLVM.Int8Type(), new LLVMValueRef[] { ep, tp });
+    LLVMValueRef pointer = LLVM.BuildArrayAlloca(builder, LLVM.Int8Type(), arr, "tjiehf");
+    
+    //LLVMValueRef pointer = LLVM.BuildAlloca(builder, LLVM.ArrayType(LLVM.Int8Type(), 2), "charp");
+    LLVM.BuildStore(builder, arr, pointer);
 
+    LLVM.BuildCall(builder, putsfunc, new LLVMValueRef[] { pointer }, "result");
 
-    LLVMValueRef[] argss = { printOp, toPrint };
-    //LLVMValueRef called = LLVM.BuildCall(builder, printAsm, argss, "thingy");
-
-    LLVM.BuildRet(builder, solved);
-
-
+    LLVMValueRef ret = LLVM.ConstInt(LLVM.Int8Type(), 0, false);
+    LLVM.BuildRet(builder, ret);
 
     if (LLVM.VerifyModule(module, LLVMVerifierFailureAction.LLVMPrintMessageAction, out var error) != falseb)
     {
@@ -55,17 +56,8 @@ public unsafe class Program
 
 
     LLVM.DumpModule(module);
-    LLVM.WriteBitcodeToFile(module, "./bitcode.bc");*/
+    LLVM.WriteBitcodeToFile(module, "./bitcode.bc");
 
-  }
-
-  public static sbyte* ConvToSbyte(string str)
-  {
-    byte[] bytes = Encoding.ASCII.GetBytes(str);
-    fixed (byte* p = bytes)
-    {
-      return (sbyte*)p;
-    }
   }
 
 }
