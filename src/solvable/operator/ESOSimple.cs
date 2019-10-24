@@ -30,8 +30,6 @@ namespace E_Lang.solvable
     LessThanOrEqual,
     GreaterThan,
     LessThan,
-
-    Point
   }
 
   public class ESOSimpleTypeObject
@@ -83,23 +81,37 @@ namespace E_Lang.solvable
     {
       Dictionary<ESOSimpleType, ESOSimpleTypeObject> temp = new Dictionary<ESOSimpleType, ESOSimpleTypeObject>();
 
-      Add(temp, ESOSimpleType.Add, EType.Double, EType.Double, (llvm, a, b) => LLVM.BuildAdd(llvm.GetBuilder(), a, b, llvm.GetNewName()));
-      Add(temp, ESOSimpleType.Subtract, EType.Double, EType.Double, (llvm, a, b) => a - b);
-      Add(temp, ESOSimpleType.Multiply, EType.Double, EType.Double, (llvm, a, b) => a * b);
-      Add(temp, ESOSimpleType.Divide, EType.Double, EType.Double, (llvm, a, b) => a / b);
-      Add(temp, ESOSimpleType.Power, EType.Double, EType.Double, (llvm, a, b) => a ^ b);
-      Add(temp, ESOSimpleType.Modulo, EType.Double, EType.Double, (llvm, a, b) => a % b);
+      Add(temp, ESOSimpleType.Add, EType.Double, EType.Double, (llvm, a, b)
+        => LLVM.BuildFAdd(llvm.GetBuilder(), a, b, llvm.GetNewName()));
+      Add(temp, ESOSimpleType.Subtract, EType.Double, EType.Double, (llvm, a, b)
+        => LLVM.BuildFSub(llvm.GetBuilder(), a, b, llvm.GetNewName()));
+      Add(temp, ESOSimpleType.Multiply, EType.Double, EType.Double, (llvm, a, b)
+        => LLVM.BuildFMul(llvm.GetBuilder(), a, b, llvm.GetNewName()));
+      Add(temp, ESOSimpleType.Divide, EType.Double, EType.Double, (llvm, a, b)
+        => LLVM.BuildFDiv(llvm.GetBuilder(), a, b, llvm.GetNewName()));
+      Add(temp, ESOSimpleType.Power, EType.Double, EType.Double, (llvm, a, b)
+        => LLVM.BuildFMul(llvm.GetBuilder(), a, b, llvm.GetNewName()));
+      Add(temp, ESOSimpleType.Modulo, EType.Double, EType.Double, (llvm, a, b)
+        => LLVM.BuildFMul(llvm.GetBuilder(), a, b, llvm.GetNewName()));
 
-      Add(temp, ESOSimpleType.AndAlso, null, EType.Boolean, (llvm, a, b) => a && b);
-      Add(temp, ESOSimpleType.OrElse, null, EType.Boolean, (llvm, a, b) => a || b);
+      Add(temp, ESOSimpleType.AndAlso, null, EType.Boolean, (llvm, a, b)
+        => LLVM.BuildAnd(llvm.GetBuilder(), a.Get(), b.Get(), llvm.GetNewName()));
+      Add(temp, ESOSimpleType.OrElse, null, EType.Boolean, (llvm, a, b)
+        => LLVM.BuildOr(llvm.GetBuilder(), a.Get(), b.Get(), llvm.GetNewName()));
 
-      Add(temp, ESOSimpleType.Equal, null, EType.Boolean, (llvm, a, b) => a == b);
-      Add(temp, ESOSimpleType.NotEqual, null, EType.Boolean, (llvm, a, b) => a != b);
+      Add(temp, ESOSimpleType.Equal, EType.Double, EType.Boolean, (llvm, a, b)
+        => LLVM.BuildFCmp(llvm.GetBuilder(), LLVMRealPredicate.LLVMRealOEQ, a.Get(), b.Get(), llvm.GetNewName()));
+      Add(temp, ESOSimpleType.NotEqual, EType.Double, EType.Boolean, (llvm, a, b)
+        => LLVM.BuildFCmp(llvm.GetBuilder(), LLVMRealPredicate.LLVMRealONE, a.Get(), b.Get(), llvm.GetNewName()));
 
-      Add(temp, ESOSimpleType.GreaterThanOrEqual, EType.Double, EType.Boolean, (llvm, a, b) => a >= b);
-      Add(temp, ESOSimpleType.LessThanOrEqual, EType.Double, EType.Boolean, (llvm, a, b) => a <= b);
-      Add(temp, ESOSimpleType.GreaterThan, EType.Double, EType.Boolean, (llvm, a, b) => a > b);
-      Add(temp, ESOSimpleType.LessThan, EType.Double, EType.Boolean, (llvm, a, b) => a < b);
+      Add(temp, ESOSimpleType.GreaterThanOrEqual, EType.Double, EType.Boolean, (llvm, a, b)
+        => LLVM.BuildFCmp(llvm.GetBuilder(), LLVMRealPredicate.LLVMRealOGE, a.Get(), b.Get(), llvm.GetNewName()));
+      Add(temp, ESOSimpleType.LessThanOrEqual, EType.Double, EType.Boolean, (llvm, a, b)
+        => LLVM.BuildFCmp(llvm.GetBuilder(), LLVMRealPredicate.LLVMRealOLE, a.Get(), b.Get(), llvm.GetNewName()));
+      Add(temp, ESOSimpleType.GreaterThan, EType.Double, EType.Boolean, (llvm, a, b)
+        => LLVM.BuildFCmp(llvm.GetBuilder(), LLVMRealPredicate.LLVMRealOGT, a.Get(), b.Get(), llvm.GetNewName()));
+      Add(temp, ESOSimpleType.LessThan, EType.Double, EType.Boolean, (llvm, a, b)
+        => LLVM.BuildFCmp(llvm.GetBuilder(), LLVMRealPredicate.LLVMRealOLE, a.Get(), b.Get(), llvm.GetNewName()));
 
       return temp;
     }

@@ -8,10 +8,6 @@ namespace E_Lang.llvm
 {
   public class LLVMHolder
   {
-    private static readonly LLVMValueRef NullValue = new LLVMValueRef(IntPtr.Zero);
-
-    private readonly string name;
-
     private readonly LLVMModuleRef module;
     private readonly LLVMPassManagerRef passManager;
     private readonly EScope scope = new EScope();
@@ -24,14 +20,13 @@ namespace E_Lang.llvm
       LLVMModuleRef module = LLVM.ModuleCreateWithName(name);
       LLVMPassManagerRef passManager = LLVMFuncs.GenPassManager(module);
 
-      return new LLVMHolder(passManager, module, name);
+      return new LLVMHolder(passManager, module);
     }
 
-    public LLVMHolder(LLVMPassManagerRef passRef, LLVMModuleRef moduleRef, string name)
+    public LLVMHolder(LLVMPassManagerRef passRef, LLVMModuleRef moduleRef)
     {
       passManager = passRef;
       module = moduleRef;
-      this.name = name;
     }
 
     public LLVMValueRef CreateMainFunc()
@@ -81,7 +76,7 @@ namespace E_Lang.llvm
     }
 
     public void Dump(string path)
-    {    
+    {
       LLVM.WriteBitcodeToFile(module, path);
     }
 

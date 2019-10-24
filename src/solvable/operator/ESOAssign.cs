@@ -22,7 +22,7 @@ namespace E_Lang.solvable
     public override EVariable Solve(LLVMHolder llvm, EVariable first, EVariable second)
     {
 
-      /*switch (type)
+      switch (type)
       {
         case AssignType.Assign:
           second.Assign(first);
@@ -33,9 +33,7 @@ namespace E_Lang.solvable
           return temp;
         default:
           throw new ELangException("Invalid Assigntype: " + type);
-      }*/
-
-      throw new ELangException("no");
+      }
     }
   }
 
