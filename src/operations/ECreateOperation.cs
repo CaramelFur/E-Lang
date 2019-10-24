@@ -2,7 +2,7 @@ using System.Linq;
 
 using E_Lang.types;
 using E_Lang.variables;
-using E_Lang.scope;
+using E_Lang.llvm;
 using E_Lang.solvable;
 
 namespace E_Lang.operations
@@ -26,6 +26,28 @@ namespace E_Lang.operations
       assignOperations = variables.Select(variable => new EAssignOperation(variable, assign)).ToArray();
     }
 
+    public override EVariable Exec(LLVMHolder llvm)
+    {
+      EVariable output = new EVVoid(llvm);
+
+      foreach (EWord variable in variables)
+      {
+        output = EVariable.New(type, llvm);
+        string name = variable.ToString();
+        llvm.GetScope().Set(name, output);
+      }
+
+      if (assignOperations != null)
+      {
+        foreach (EAssignOperation assignOp in assignOperations)
+        {
+          assignOp.Exec(llvm);
+        }
+      }
+
+      return output;
+    }
+
     public override string ToString()
     {
       string varstring = "";
@@ -47,27 +69,6 @@ namespace E_Lang.operations
         return "ECreateOperation{\n" + type + ": '" + varstring + "'\nsuboperations: (\n" + opstring + "\n)\n}";
       }
       return "ECreateOperation{" + type + ": '" + varstring + "'}";
-    }
-
-    public override EVariable Exec(EScope scope)
-    {
-      EVariable newVar = new EVVoid();
-
-      foreach (EWord variable in variables)
-      {
-        newVar = EVariable.New(type);
-        scope.Set(variable.ToString(), newVar);
-      }
-
-      if (assignOperations != null)
-      {
-        foreach (EAssignOperation assignOp in assignOperations)
-        {
-          assignOp.Exec(scope);
-        }
-      }
-
-      return newVar;
     }
   }
 

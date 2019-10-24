@@ -1,10 +1,20 @@
 using E_Lang.types;
+using E_Lang.llvm;
+using LLVMSharp;
+using System;
 
 namespace E_Lang.variables
 {
   public class EVDouble : EVariable
   {
-    private decimal value;
+    private LLVMValueRef value;
+
+    public EVDouble(LLVMHolder holder) : base(holder) { }
+
+    public override LLVMTypeRef GetTypeRef()
+    {
+      return LLVM.DoubleType();
+    }
 
     public override EVariable Assign(EVariable assign)
     {
@@ -15,33 +25,46 @@ namespace E_Lang.variables
 
     protected override EVariable ConvertInternal(ETypeWord to)
     {
+      EVariable newvar = New(to, llvm);
+      LLVMValueRef convert;
       switch (to.Get())
       {
         case EType.Int:
-          return ((EVInt)New(to)).Set((int)value);
         case EType.Char:
-          return ((EVChar)New(to)).Set((char)value);
         case EType.Boolean:
-          return ((EVBoolean)New(to)).Set(value != 0);
+          convert = LLVM.BuildFPToUI(llvm.GetBuilder(), Get(), newvar.GetTypeRef(), llvm.GetNewName());
+          Console.WriteLine(newvar.ToString() +  newvar.GetTypeRef());
+          return newvar.Set(convert);
       }
 
       return null;
     }
 
-    public override dynamic Get()
+    public override LLVMValueRef Get()
     {
+      if (value.IsUndef()) IsUndefined();
       return value;
     }
 
-    public override EVariable Set(dynamic setto)
+    public override EVariable Set(dynamic setTo)
     {
-      value = setto;
-      return this;
-    }
+      if (setTo.GetType() == typeof(decimal))
+      {
+        decimal parsedValue = setTo;
+        value = LLVM.ConstReal(GetTypeRef(), (double)parsedValue);
+        return this;
 
-    public override string ToString()
-    {
-      return value.ToString();
+      }
+      else if (setTo.GetType() == typeof(LLVMValueRef))
+      {
+        LLVMValueRef parsedValue = setTo;
+        if (LLVM.TypeOf(parsedValue).Equals(GetTypeRef()))
+        {
+          value = parsedValue;
+          return this;
+        }
+      }
+      throw new ELangException("EVDouble did not receive a decimal");
     }
   }
 }

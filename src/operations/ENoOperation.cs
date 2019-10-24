@@ -1,5 +1,5 @@
+using E_Lang.llvm;
 using E_Lang.variables;
-using E_Lang.scope;
 
 namespace E_Lang.operations
 {
@@ -11,9 +11,9 @@ namespace E_Lang.operations
       return "NoOp";
     }
 
-    public override EVariable Exec(EScope scope)
+    public override EVariable Exec(LLVMHolder llvm)
     {
-      return new EVVoid();
+      return new EVVoid(llvm);
     }
   }
 

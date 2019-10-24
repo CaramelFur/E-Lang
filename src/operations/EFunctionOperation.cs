@@ -1,6 +1,6 @@
 using E_Lang.types;
 using E_Lang.variables;
-using E_Lang.scope;
+using E_Lang.llvm;
 using E_Lang.functions;
 
 namespace E_Lang.operations
@@ -21,6 +21,16 @@ namespace E_Lang.operations
       program = new EProgram(operations);
     }
 
+    public ECustomFunction ToEFunction()
+    {
+      return new ECustomFunction(name, type, program, arguments);
+    }
+
+    public override EVariable Exec(LLVMHolder llvm)
+    {
+      return new EVVoid(llvm);
+    }
+
     public override string ToString()
     {
       string argString = "";
@@ -30,17 +40,6 @@ namespace E_Lang.operations
         argString += arguments[i].ToString();
       }
       return "EFunction{\nname: '" + name + "'\ntype: " + type + "\narguments: (" + argString + ")\n" + program + "\n}";
-    }
-
-    public ECustomFunction ToEFunction()
-    {
-      return new ECustomFunction(name, type, program, arguments);
-    }
-
-    public override EVariable Exec(EScope scope)
-    {
-      scope.SetFunction(name.ToString(), ToEFunction());
-      return new EVVoid();
     }
   }
 

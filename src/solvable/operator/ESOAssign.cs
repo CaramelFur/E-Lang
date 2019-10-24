@@ -1,7 +1,5 @@
-using System;
-using System.Linq.Expressions;
-
-using E_Lang.types;
+using LLVMSharp;
+using E_Lang.llvm;
 using E_Lang.variables;
 
 namespace E_Lang.solvable
@@ -16,16 +14,15 @@ namespace E_Lang.solvable
   {
     private readonly AssignType type;
 
-    public ESOAssign(string op, AssignType type) :
-      base(op)
+    public ESOAssign(string op, AssignType type) : base(op)
     {
       this.type = type;
     }
 
-    public override EVariable Solve(EVariable first, EVariable second)
+    public override EVariable Solve(LLVMHolder llvm, EVariable first, EVariable second)
     {
 
-      switch (type)
+      /*switch (type)
       {
         case AssignType.Assign:
           second.Assign(first);
@@ -36,7 +33,9 @@ namespace E_Lang.solvable
           return temp;
         default:
           throw new ELangException("Invalid Assigntype: " + type);
-      }
+      }*/
+
+      throw new ELangException("no");
     }
   }
 

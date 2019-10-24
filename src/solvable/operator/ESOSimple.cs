@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using E_Lang.types;
 using E_Lang.variables;
 
+using LLVMSharp;
+using E_Lang.llvm;
+
 namespace E_Lang.solvable
 {
   public enum ESOSimpleType
@@ -42,20 +45,9 @@ namespace E_Lang.solvable
       this.output = output;
     }
 
-    private EVariable Calc(EVariable a, EVariable b)
+    private LLVMValueRef Calc(LLVMValueRef a, LLVMValueRef b)
     {
-      EVariable convA = a;
-      EVariable convB = b;
-      if (input.HasValue)
-      {
-        EType inputType = input.Value;
-        convA = a.Convert(inputType);
-        convB = b.Convert(inputType);
-      }
-
-      dynamic convC = calc(convA.Get(), convB.Get());
-
-      return EVariable.New(output).Set(convC);
+      return calc(a, b);
     }
 
     private static readonly Dictionary<ESOSimpleType, ESOSimpleTypeObject> dict = Populate();
@@ -92,7 +84,7 @@ namespace E_Lang.solvable
       return temp;
     }
 
-    public static EVariable Calc(ESOSimpleType type, EVariable a, EVariable b)
+    public static LLVMValueRef Calc(ESOSimpleType type, LLVMValueRef a, LLVMValueRef b)
     {
       ESOSimpleTypeObject selected = dict[type];
       if (selected == null) throw new ELangException("Invalid operation: " + type.ToString());
@@ -110,9 +102,11 @@ namespace E_Lang.solvable
       this.type = type;
     }
 
-    public override EVariable Solve(EVariable first, EVariable second)
+    public override EVariable Solve(LLVMHolder llvm, EVariable first, EVariable second)
     {
-      return ESOSimpleTypeObject.Calc(type, first, second);
+      EVariable outVar = new EVDouble(llvm);
+      LLVMValueRef solved = LLVM.BuildFAdd(llvm.GetBuilder(), first.Get(), second.Get(), llvm.GetNewName());
+      return outVar.Set(solved);
     }
   }
 

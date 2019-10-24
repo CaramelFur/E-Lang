@@ -1,5 +1,5 @@
+using E_Lang.llvm;
 using E_Lang.variables;
-using E_Lang.scope;
 
 namespace E_Lang.solvable
 {
@@ -16,13 +16,13 @@ namespace E_Lang.solvable
       this.op = op;
     }
 
-    public override EVariable Solve(EScope scope)
+    public override EVariable Solve(LLVMHolder llvm)
     {
-      EVariable firstS = first.Solve(scope);
-      EVariable secondS = second.Solve(scope);
-      return op.Solve(firstS, secondS);
+      EVariable firstS = first.Solve(llvm);
+      EVariable secondS = second.Solve(llvm);
+      return op.Solve(llvm, firstS, secondS);
     }
-
+    
     public override string ToString(bool detailed)
     {
       if (detailed) return "ESDoubleExpression[" + first.ToString(detailed) + " " + op.ToString(detailed) + " " + second.ToString(detailed) + "]";

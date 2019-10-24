@@ -3,12 +3,27 @@ using System.Linq;
 using System.Collections.Generic;
 
 using E_Lang.types;
+using E_Lang.llvm;
+
+using LLVMSharp;
 
 
 namespace E_Lang.variables
 {
   public abstract class EVariable
   {
+    protected LLVMHolder llvm;
+
+    public EVariable(LLVMHolder holder)
+    {
+      llvm = holder;
+    }
+
+    public virtual LLVMTypeRef GetTypeRef()
+    {
+      throw new ELangException("Cannot get type from abstract class");
+    }
+
     private static readonly Dictionary<EType, Type> types = new Dictionary<EType, Type> {
       { EType.Int, typeof(EVInt) },
       { EType.Double, typeof(EVDouble) },
@@ -17,22 +32,16 @@ namespace E_Lang.variables
       { EType.Void, typeof(EVVoid) }
     };
 
-    public static EVariable New(ETypeWord type)
+    public static EVariable New(ETypeWord type, LLVMHolder llvm)
     {
-      return New(type.Get());
+      return New(type.Get(), llvm);
     }
 
-    public static EVariable New(EType type)
+    public static EVariable New(EType type, LLVMHolder llvm)
     {
       if (!types.ContainsKey(type)) throw new ELangException("Variable type " + type + " is unknown");
       Type createType = types[type];
-      return (EVariable)Activator.CreateInstance(createType);
-    }
-
-    public ETypeWord GetEType()
-    {
-      EType type = types.Where((pair) => pair.Value == GetType()).First().Key;
-      return new ETypeWord(type);
+      return (EVariable)Activator.CreateInstance(createType, llvm);
     }
 
     public static ETypeWord GetEType(Type t)
@@ -41,9 +50,10 @@ namespace E_Lang.variables
       return new ETypeWord(type);
     }
 
-    public virtual EVariable Assign(EVariable assign)
+    public ETypeWord GetEType()
     {
-      throw new ELangException("Cannot assign to abstract class");
+      EType type = types.Where((pair) => pair.Value == GetType()).First().Key;
+      return new ETypeWord(type);
     }
 
     public EVariable Convert(EType to)
@@ -59,29 +69,39 @@ namespace E_Lang.variables
       return CannotConvert(to);
     }
 
+    public EVariable Clone()
+    {
+      return New(GetEType(), llvm).Assign(this);
+    }
+
+    public virtual EVariable Assign(EVariable assign)
+    {
+      throw new ELangException("Cannot assign to abstract class");
+    }
+
     protected virtual EVariable ConvertInternal(ETypeWord to)
     {
       return null;
     }
 
-    public virtual dynamic Get()
+    public virtual LLVMValueRef Get()
     {
-      return "";
+      throw new ELangException("Cannot get from abstract class");
     }
 
     public virtual EVariable Set(dynamic setto)
     {
-      return this;
-    }
-
-    public EVariable Clone()
-    {
-      return New(GetEType()).Assign(this);
+      throw new ELangException("Cannot set in abstract class");
     }
 
     protected EVariable CannotConvert(ETypeWord type)
     {
       throw new ELangException("Cannot convert " + type + " to " + GetEType());
+    }
+
+    protected EVariable IsUndefined()
+    {
+      throw new ELangException("Variable is undefined");
     }
   }
 }

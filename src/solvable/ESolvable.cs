@@ -1,5 +1,6 @@
 using E_Lang.variables;
-using E_Lang.scope;
+using E_Lang.llvm;
+using LLVMSharp;
 
 namespace E_Lang.solvable
 {
@@ -12,9 +13,9 @@ namespace E_Lang.solvable
       this.expression = expression;
     }
 
-    public EVariable Solve(EScope scope)
+    public EVariable Solve(LLVMHolder llvm)
     {
-      return expression.Solve(scope);
+      return expression.Solve(llvm);
     }
 
     public override string ToString()

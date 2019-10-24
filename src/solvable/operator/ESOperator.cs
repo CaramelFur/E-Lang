@@ -1,3 +1,4 @@
+using E_Lang.llvm;
 using E_Lang.variables;
 
 namespace E_Lang.solvable
@@ -11,14 +12,14 @@ namespace E_Lang.solvable
       this.op = op;
     }
 
-    public virtual EVariable Solve(EVariable first)
+    public virtual EVariable Solve(LLVMHolder llvm,  EVariable first)
     {
-      return new EVVoid();
+      throw new ELangException("Cannot solve abstract class operator");
     }
 
-    public virtual EVariable Solve(EVariable first, EVariable second)
+    public virtual EVariable Solve(LLVMHolder llvm, EVariable first, EVariable second)
     {
-      return new EVVoid();
+      throw new ELangException("Cannot solve abstract class operator");
     }
 
     public override string ToString()

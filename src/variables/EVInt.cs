@@ -1,10 +1,21 @@
 using E_Lang.types;
+using E_Lang.llvm;
+using LLVMSharp;
+using System;
+
 
 namespace E_Lang.variables
 {
   public class EVInt : EVariable
   {
-    private int value;
+    private LLVMValueRef value;
+
+    public EVInt(LLVMHolder holder) : base(holder) { }
+
+    public override LLVMTypeRef GetTypeRef()
+    {
+      return LLVM.Int32Type();
+    }
 
     public override EVariable Assign(EVariable assign)
     {
@@ -15,33 +26,47 @@ namespace E_Lang.variables
 
     protected override EVariable ConvertInternal(ETypeWord to)
     {
+      EVariable newvar = EVariable.New(to, llvm);
+      LLVMValueRef convert;
       switch (to.Get())
       {
         case EType.Double:
-          return ((EVDouble)New(to)).Set(value);
+          convert = LLVM.BuildUIToFP(llvm.GetBuilder(), Get(), newvar.GetTypeRef(), llvm.GetNewName());
+          return newvar.Set(convert);
         case EType.Char:
-          return ((EVChar)New(to)).Set((char)value);
         case EType.Boolean:
-          return ((EVBoolean)New(to)).Set(value != 0);
+          convert = LLVM.BuildIntCast(llvm.GetBuilder(), Get(), newvar.GetTypeRef(), llvm.GetNewName());
+          return newvar.Set(convert);
       }
 
       return null;
     }
 
-    public override dynamic Get()
+    public override LLVMValueRef Get()
     {
+      if (value.IsUndef()) IsUndefined();
       return value;
     }
 
-    public override EVariable Set(dynamic setto)
+    public override EVariable Set(dynamic setTo)
     {
-      value = setto;
-      return this;
+      if (setTo.GetType() == typeof(int))
+      {
+        int parsedValue = setTo;
+        value = LLVM.ConstInt(GetTypeRef(), (ulong)parsedValue, false);
+        return this;
+      }
+      else if (setTo.GetType() == typeof(LLVMValueRef))
+      {
+        LLVMValueRef parsedValue = setTo;
+        if (LLVM.TypeOf(parsedValue).Equals(GetTypeRef()))
+        {
+          value = parsedValue;
+          return this;
+        }
+      }
+      throw new ELangException("EVInt did not receive an int");
     }
 
-    public override string ToString()
-    {
-      return value.ToString();
-    }
   }
 }

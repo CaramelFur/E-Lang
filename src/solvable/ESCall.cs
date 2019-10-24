@@ -1,9 +1,8 @@
 using System.Linq;
 
-using E_Lang.variables;
-using E_Lang.scope;
 using E_Lang.types;
-using E_Lang.functions;
+using E_Lang.llvm;
+using E_Lang.variables;
 
 namespace E_Lang.solvable
 {
@@ -18,13 +17,9 @@ namespace E_Lang.solvable
       this.arguments = arguments.Select(arg => new ESolvable(arg)).ToArray();
     }
 
-    public override EVariable Solve(EScope scope)
+    public override EVariable Solve(LLVMHolder llvm)
     {
-      EFunction toRun = scope.GetFunction(callFunc.ToString());
-
-      EVariable output = toRun.Exec(scope, arguments);
-
-      return output;
+      throw new ELangException("no");
     }
 
     public override string ToString(bool detailed)

@@ -1,10 +1,10 @@
 using System;
 
 using E_Lang.types;
-using E_Lang.variables;
-using E_Lang.scope;
+using E_Lang.llvm;
 using E_Lang.solvable;
-using E_Lang.interpreter;
+using LLVMSharp;
+
 
 namespace E_Lang.functions
 {
@@ -37,12 +37,12 @@ namespace E_Lang.functions
       return "EFunction{\ntype: " + type + "\narguments: (" + argString + ")\n" + program + "\n}";
     }
 
-    public override EVariable Exec(EScope scope, ESolvable[] args)
+    public override LLVMValueRef Exec(LLVMHolder llvm, ESolvable[] args)
     {
       // TODO: output type casting
       if (args.Length != arguments.Length) throw new ELangException("Wrong amount of args for function " + name);
 
-      EScope lowerScope = scope.GetChild();
+      /*EScope lowerScope = scope.GetChild();
 
       for (int i = 0; i < arguments.Length; i++)
       {
@@ -53,7 +53,8 @@ namespace E_Lang.functions
         lowerScope.Set(argname, solved);
       }
 
-      return Interpreter.Run(program, lowerScope);
+      return Interpreter.Run(program, lowerScope);*/
+      return default(LLVMValueRef);
     }
   }
 }

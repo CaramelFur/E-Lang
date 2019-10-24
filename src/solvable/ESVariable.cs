@@ -1,5 +1,5 @@
+using E_Lang.llvm;
 using E_Lang.variables;
-using E_Lang.scope;
 
 namespace E_Lang.solvable
 {
@@ -12,9 +12,9 @@ namespace E_Lang.solvable
       this.name = name;
     }
 
-    public override EVariable Solve(EScope scope)
+    public override EVariable Solve(LLVMHolder llvm)
     {
-      return scope.Get(name);
+      throw new ELangException("no");
     }
 
     public override string ToString(bool detailed)

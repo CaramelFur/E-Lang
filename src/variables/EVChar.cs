@@ -1,10 +1,19 @@
 using E_Lang.types;
+using E_Lang.llvm;
+using LLVMSharp;
 
 namespace E_Lang.variables
 {
   public class EVChar : EVariable
   {
-    private char value;
+    private LLVMValueRef value;
+
+    public EVChar(LLVMHolder holder) : base(holder) { }
+
+    public override LLVMTypeRef GetTypeRef()
+    {
+      return LLVM.Int16Type();
+    }
 
     public override EVariable Assign(EVariable assign)
     {
@@ -15,32 +24,46 @@ namespace E_Lang.variables
 
     protected override EVariable ConvertInternal(ETypeWord to)
     {
+      EVariable newvar = New(to, llvm);
+      LLVMValueRef convert;
       switch (to.Get())
       {
         case EType.Double:
-          return ((EVDouble)New(to)).Set(value);
+          convert = LLVM.BuildUIToFP(llvm.GetBuilder(), Get(), newvar.GetTypeRef(), llvm.GetNewName());
+          return newvar.Set(convert);
         case EType.Int:
-          return ((EVInt)New(to)).Set(value);
         case EType.Boolean:
-          return ((EVBoolean)New(to)).Set(value != 0);
+          convert = LLVM.BuildIntCast(llvm.GetBuilder(), Get(), newvar.GetTypeRef(), llvm.GetNewName());
+          return newvar.Set(convert);
       }
       return null;
     }
 
-    public override dynamic Get()
+    public override LLVMValueRef Get()
     {
+      if (value.IsUndef()) IsUndefined();
       return value;
     }
 
-    public override EVariable Set(dynamic setto)
+    public override EVariable Set(dynamic setTo)
     {
-      value = setto;
-      return this;
-    }
+      if (setTo.GetType() == typeof(char))
+      {
+        char parsedValue = setTo;
+        value = LLVM.ConstInt(GetTypeRef(), parsedValue, false);
+        return this;
 
-    public override string ToString()
-    {
-      return value.ToString();
+      }
+      else if (setTo.GetType() == typeof(LLVMValueRef))
+      {
+        LLVMValueRef parsedValue = setTo;
+        if (LLVM.TypeOf(parsedValue).Equals(GetTypeRef()))
+        {
+          value = parsedValue;
+          return this;
+        }
+      }
+      throw new ELangException("EVChar did not receive a char");
     }
   }
 }

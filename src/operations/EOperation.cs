@@ -1,6 +1,5 @@
+using E_Lang.llvm;
 using E_Lang.variables;
-using E_Lang.scope;
-
 
 namespace E_Lang.operations
 {
@@ -12,9 +11,8 @@ namespace E_Lang.operations
       return "";
     }
 
-    public virtual EVariable Exec(EScope scope)
-    {
-      return new EVVoid();
+    public virtual EVariable Exec(LLVMHolder llvm) { 
+      throw new ELangException("Cannot exec an abstract class");
     }
   }
 

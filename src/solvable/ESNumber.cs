@@ -1,5 +1,5 @@
+using E_Lang.llvm;
 using E_Lang.variables;
-using E_Lang.scope;
 
 namespace E_Lang.solvable
 {
@@ -12,10 +12,9 @@ namespace E_Lang.solvable
       this.number = number;
     }
 
-    public override EVariable Solve(EScope scope)
+    public override EVariable Solve(LLVMHolder llvm)
     {
-      if (IsInteger()) return new EVInt().Set((int)number);
-      else return new EVDouble().Set(number);
+      return new EVDouble(llvm).Set(number);
     }
 
     public override string ToString(bool detailed)

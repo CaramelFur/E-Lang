@@ -1,10 +1,9 @@
 using System;
 
 using E_Lang.types;
-using E_Lang.variables;
-using E_Lang.scope;
+using E_Lang.llvm;
 using E_Lang.solvable;
-using E_Lang.interpreter;
+using E_Lang.variables;
 
 
 namespace E_Lang.operations
@@ -26,23 +25,9 @@ namespace E_Lang.operations
       return "EWhileOperation{\nwhile: " + check + ";\n" + program + "\n}";
     }
 
-    public override EVariable Exec(EScope scope)
+    public override EVariable Exec(LLVMHolder llvm)
     {
-      Func<bool> checkVar = () => (
-        (EVBoolean)
-        check.Solve(scope)
-        .Convert(EType.Boolean)
-      ).Get();
-
-      EVariable output = new EVVoid();
-
-      while (checkVar())
-      {
-        EScope subScope = scope.GetChild();
-        output = Interpreter.Run(program, subScope);
-      }
-
-      return output;
+      return new EVVoid(llvm);
     }
   }
 

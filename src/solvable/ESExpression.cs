@@ -1,5 +1,5 @@
+using E_Lang.llvm;
 using E_Lang.variables;
-using E_Lang.scope;
 
 namespace E_Lang.solvable
 {
@@ -10,9 +10,9 @@ namespace E_Lang.solvable
       return new ESDoubleExpression(first, second, op);
     }
 
-    public virtual EVariable Solve(EScope scope)
+    public virtual EVariable Solve(LLVMHolder scope)
     {
-      return new EVVoid();
+      throw new ELangException("Cannot solve and abstract expression class");
     }
 
     public override string ToString()

@@ -1,6 +1,7 @@
 using E_Lang.variables;
-using E_Lang.scope;
+using E_Lang.llvm;
 using E_Lang.solvable;
+using LLVMSharp;
 
 namespace E_Lang.operations
 {
@@ -14,14 +15,14 @@ namespace E_Lang.operations
       expression = solvable;
     }
 
+    public override EVariable Exec(LLVMHolder llvm)
+    {
+      return expression.Solve(llvm);
+    }
+
     public override string ToString()
     {
       return "EExpressionOperation{" + expression + "}";
-    }
-
-    public override EVariable Exec(EScope scope)
-    {
-      return expression.Solve(scope);
     }
   }
 

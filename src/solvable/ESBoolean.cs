@@ -1,5 +1,5 @@
+using E_Lang.llvm;
 using E_Lang.variables;
-using E_Lang.scope;
 
 namespace E_Lang.solvable
 {
@@ -12,9 +12,9 @@ namespace E_Lang.solvable
       this.boolean = boolean;
     }
 
-    public override EVariable Solve(EScope scope)
+    public override EVariable Solve(LLVMHolder llvm)
     {
-      return new EVBoolean().Set(boolean);
+      return new EVBoolean(llvm).Set(boolean);
     }
 
     public override string ToString(bool detailed)

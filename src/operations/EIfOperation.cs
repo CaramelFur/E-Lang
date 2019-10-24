@@ -2,9 +2,9 @@ using System;
 
 using E_Lang.types;
 using E_Lang.variables;
-using E_Lang.scope;
+using E_Lang.llvm;
 using E_Lang.solvable;
-using E_Lang.interpreter;
+using E_Lang.compiler;
 
 namespace E_Lang.operations
 {
@@ -27,27 +27,14 @@ namespace E_Lang.operations
       elseProgram = new EProgram(elseOperations);
     }
 
+    public override EVariable Exec(LLVMHolder llvm)
+    {
+      return new EVVoid(llvm);
+    }
+
     public override string ToString()
     {
       return "EIfOperation{\ncheck: " + check + ";\n" + program + "\n}";
-    }
-
-    public override EVariable Exec(EScope scope)
-    {
-      EVBoolean solved = (EVBoolean)check.Solve(scope).Convert(EType.Boolean);
-
-      if (solved.Get())
-      {
-        EScope subScope = scope.GetChild();
-        return Interpreter.Run(program, subScope);
-      }
-      if (elseProgram != null)
-      {
-        EScope subScope = scope.GetChild();
-        return Interpreter.Run(elseProgram, subScope);
-      }
-      return new EVVoid();
-
     }
   }
 

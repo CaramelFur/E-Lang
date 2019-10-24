@@ -1,8 +1,6 @@
-using System;
-using System.Linq.Expressions;
-
-using E_Lang.types;
 using E_Lang.variables;
+using LLVMSharp;
+using E_Lang.llvm;
 
 namespace E_Lang.solvable
 {
@@ -10,14 +8,12 @@ namespace E_Lang.solvable
   public class ESOConvert : ESOperator
   {
 
-    public ESOConvert(string op) :
-      base(op)
-    {
-    }
+    public ESOConvert(string op) : base(op) { }
 
-    public override EVariable Solve(EVariable first, EVariable second)
+    public override EVariable Solve(LLVMHolder llvm, EVariable first, EVariable second)
     {
-      return first.Convert(second.GetEType());
+      throw new ELangException("no");
+      //return LLVM.cast;
     }
   }
 

@@ -1,7 +1,8 @@
 using E_Lang.types;
-using E_Lang.variables;
-using E_Lang.scope;
+using LLVMSharp;
+using E_Lang.llvm;
 using E_Lang.solvable;
+using E_Lang.variables;
 
 namespace E_Lang.operations
 {
@@ -18,16 +19,16 @@ namespace E_Lang.operations
       this.value = value;
     }
 
+    public override EVariable Exec(LLVMHolder llvm)
+    {
+      EVariable toUpdate = llvm.GetScope().Get(variable.ToString());
+      toUpdate.Assign(value.Solve(llvm));
+      return toUpdate;
+    }
+
     public override string ToString()
     {
       return "EAssignOperation{" + variable + " = " + value.ToString() + "}";
-    }
-
-    public override EVariable Exec(EScope scope)
-    {
-      EVariable toUpdate = scope.Get(variable.ToString());
-      toUpdate.Assign(value.Solve(scope));
-      return toUpdate;
     }
   }
 
