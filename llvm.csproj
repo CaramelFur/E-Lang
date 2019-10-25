@@ -1,11 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-    <NoWarn>
-      NU1701
-    </NoWarn>
+    <Platform>x64</Platform>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -16,5 +15,4 @@
     <PackageReference Include="LLVMSharp" Version="5.0.0" />
     <PackageReference Include="Sprache" Version="2.2.0" />
   </ItemGroup>
-
 </Project>
