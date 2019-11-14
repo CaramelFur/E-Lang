@@ -4,6 +4,9 @@ using E_Lang.types;
 using E_Lang.llvm;
 using E_Lang.solvable;
 using E_Lang.variables;
+using E_Lang.compiler;
+
+using LLVMSharp;
 
 
 namespace E_Lang.operations
@@ -27,7 +30,29 @@ namespace E_Lang.operations
 
     public override EVariable Exec(LLVMHolder llvm)
     {
-      return new EVVoid(llvm);
+      LLVMBuilderRef mainBuilder = llvm.GetBuilder();
+      // build 
+
+      LLVMBasicBlockRef endBlock = llvm.CreateNewBlock();
+
+      LLVMBasicBlockRef repeatBlock = llvm.CreateNewBlock();
+
+      LLVMBasicBlockRef compareBlock = llvm.CreateNewBlock();
+      LLVMValueRef solved = check.Solve(llvm).Get();
+      LLVM.BuildCondBr(llvm.GetBuilder(), solved, repeatBlock, endBlock);
+      llvm.MoveBackABlock();
+
+      EVariable outVariable = Compiler.SmallCompile(program, llvm);
+      LLVM.BuildBr(llvm.GetBuilder(), compareBlock);
+      llvm.MoveBackABlock();
+
+      LLVM.MoveBasicBlockAfter(repeatBlock, compareBlock);
+      LLVM.MoveBasicBlockAfter(endBlock, repeatBlock);
+
+      LLVM.BuildBr(mainBuilder, compareBlock);
+
+
+      return outVariable;
     }
   }
 

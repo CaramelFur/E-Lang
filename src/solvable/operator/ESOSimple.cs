@@ -95,23 +95,23 @@ namespace E_Lang.solvable
         => LLVM.BuildFMul(llvm.GetBuilder(), a, b, llvm.GetNewName()));
 
       Add(temp, ESOSimpleType.AndAlso, null, "boolean", (llvm, a, b)
-        => LLVM.BuildAnd(llvm.GetBuilder(), a.Get(), b.Get(), llvm.GetNewName()));
+        => LLVM.BuildAnd(llvm.GetBuilder(), a, b, llvm.GetNewName()));
       Add(temp, ESOSimpleType.OrElse, null, "boolean", (llvm, a, b)
-        => LLVM.BuildOr(llvm.GetBuilder(), a.Get(), b.Get(), llvm.GetNewName()));
+        => LLVM.BuildOr(llvm.GetBuilder(), a, b, llvm.GetNewName()));
 
       Add(temp, ESOSimpleType.Equal, "double", "boolean", (llvm, a, b)
-        => LLVM.BuildFCmp(llvm.GetBuilder(), LLVMRealPredicate.LLVMRealOEQ, a.Get(), b.Get(), llvm.GetNewName()));
+        => LLVM.BuildFCmp(llvm.GetBuilder(), LLVMRealPredicate.LLVMRealOEQ, a, b, llvm.GetNewName()));
       Add(temp, ESOSimpleType.NotEqual, "double", "boolean", (llvm, a, b)
-        => LLVM.BuildFCmp(llvm.GetBuilder(), LLVMRealPredicate.LLVMRealONE, a.Get(), b.Get(), llvm.GetNewName()));
+        => LLVM.BuildFCmp(llvm.GetBuilder(), LLVMRealPredicate.LLVMRealONE, a, b, llvm.GetNewName()));
 
       Add(temp, ESOSimpleType.GreaterThanOrEqual, "double", "boolean", (llvm, a, b)
-        => LLVM.BuildFCmp(llvm.GetBuilder(), LLVMRealPredicate.LLVMRealOGE, a.Get(), b.Get(), llvm.GetNewName()));
+        => LLVM.BuildFCmp(llvm.GetBuilder(), LLVMRealPredicate.LLVMRealOGE, a, b, llvm.GetNewName()));
       Add(temp, ESOSimpleType.LessThanOrEqual, "double", "boolean", (llvm, a, b)
-        => LLVM.BuildFCmp(llvm.GetBuilder(), LLVMRealPredicate.LLVMRealOLE, a.Get(), b.Get(), llvm.GetNewName()));
+        => LLVM.BuildFCmp(llvm.GetBuilder(), LLVMRealPredicate.LLVMRealOLE, a, b, llvm.GetNewName()));
       Add(temp, ESOSimpleType.GreaterThan, "double", "boolean", (llvm, a, b)
-        => LLVM.BuildFCmp(llvm.GetBuilder(), LLVMRealPredicate.LLVMRealOGT, a.Get(), b.Get(), llvm.GetNewName()));
+        => LLVM.BuildFCmp(llvm.GetBuilder(), LLVMRealPredicate.LLVMRealOGT, a, b, llvm.GetNewName()));
       Add(temp, ESOSimpleType.LessThan, "double", "boolean", (llvm, a, b)
-        => LLVM.BuildFCmp(llvm.GetBuilder(), LLVMRealPredicate.LLVMRealOLE, a.Get(), b.Get(), llvm.GetNewName()));
+        => LLVM.BuildFCmp(llvm.GetBuilder(), LLVMRealPredicate.LLVMRealOLE, a, b, llvm.GetNewName()));
 
       return temp;
     }

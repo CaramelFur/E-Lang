@@ -1,5 +1,8 @@
-create int: a := 2;
+create int: a := 10;
 
-a + 69 => a;
+while (a != 0) := {
+  a - 1 => a;
+  putchar <- 69;
+}
 
-putchar <- a;
+a;

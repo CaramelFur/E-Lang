@@ -13,6 +13,8 @@ namespace E_Lang.llvm
     private readonly LLVMModuleRef module;
     private readonly LLVMPassManagerRef passManager;
     private readonly EScope scope = new EScope();
+
+    private readonly Stack<LLVMValueRef> functionStack = new Stack<LLVMValueRef>();
     private readonly Stack<LLVMBuilderRef> builderStack = new Stack<LLVMBuilderRef>();
 
     private ulong counter = 0;
@@ -53,12 +55,35 @@ namespace E_Lang.llvm
 
         )
       );
+
+      GetScope().Set("getchar",
+        new EVFunction(this)
+        .Set(
+          new EVFunctionDefinition(
+            LLVM.AddFunction(
+              module,
+              "getchar",
+              LLVM.FunctionType(
+                LLVM.Int32Type(),
+                new LLVMTypeRef[] {},
+                false
+              )
+            ),
+            new EType[] {},
+            new EType("int")
+          )
+
+        )
+      );
     }
 
     public LLVMValueRef CreateMainFunc()
     {
       LLVMValueRef main_func = LLVMFuncs.createMainFunction(module);
-      LLVMBasicBlockRef entry = LLVM.AppendBasicBlock(main_func, "entry");
+
+      functionStack.Push(main_func);
+
+      LLVMBasicBlockRef entry = LLVM.AppendBasicBlock(main_func, GetNewName());
       LLVMBuilderRef builder = LLVM.CreateBuilder();
       LLVM.PositionBuilderAtEnd(builder, entry);
 
@@ -66,6 +91,24 @@ namespace E_Lang.llvm
       return main_func;
     }
 
+    public LLVMBasicBlockRef CreateNewBlock()
+    {
+      LLVMValueRef func = functionStack.Peek();
+      LLVMBasicBlockRef newBlock = LLVM.AppendBasicBlock(func, GetNewName());
+      LLVMBuilderRef builder = LLVM.CreateBuilder();
+      LLVM.PositionBuilderAtEnd(builder, newBlock);
+
+      builderStack.Push(builder);
+
+      return newBlock;
+    }
+
+    public void MoveBackABlock(){
+      builderStack.Pop();
+    }
+
+
+    // ========== NOT VERY IMPORTANT
     public LLVMBuilderRef GetBuilder()
     {
       return builderStack.Peek();

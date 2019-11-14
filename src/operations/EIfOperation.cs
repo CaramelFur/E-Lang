@@ -1,5 +1,7 @@
 using System;
 
+using LLVMSharp;
+
 using E_Lang.types;
 using E_Lang.variables;
 using E_Lang.llvm;
@@ -29,11 +31,41 @@ namespace E_Lang.operations
 
     public override EVariable Exec(LLVMHolder llvm)
     {
-      return new EVVoid(llvm);
+
+      LLVMValueRef solved = check.Solve(llvm).Get();
+      LLVMBuilderRef mainBuilder = llvm.GetBuilder();
+      // build 
+      LLVMBasicBlockRef endBlock = llvm.CreateNewBlock();
+
+      LLVMBasicBlockRef thenBlock = llvm.CreateNewBlock();
+      EVariable outVariable = Compiler.SmallCompile(program, llvm);
+      LLVM.BuildBr(llvm.GetBuilder(), endBlock);
+      llvm.MoveBackABlock();
+
+      LLVM.MoveBasicBlockAfter(endBlock, thenBlock);
+
+      if (elseProgram != null)
+      {
+        LLVMBasicBlockRef elseBlock = llvm.CreateNewBlock();
+        outVariable = Compiler.SmallCompile(elseProgram, llvm);
+        LLVM.BuildBr(llvm.GetBuilder(), endBlock);
+        llvm.MoveBackABlock();
+
+        LLVM.MoveBasicBlockAfter(endBlock, elseBlock);
+
+        LLVM.BuildCondBr(mainBuilder, solved, thenBlock, elseBlock);
+      }
+      else
+      {
+        LLVM.BuildCondBr(mainBuilder, solved, thenBlock, endBlock);
+      }
+
+      return outVariable;
     }
 
     public override string ToString()
     {
+      if (elseProgram != null) return "EIfOperation{\ncheck: " + check + ";\n" + program + "\nelse" + elseProgram + "\n}";
       return "EIfOperation{\ncheck: " + check + ";\n" + program + "\n}";
     }
   }
