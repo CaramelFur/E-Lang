@@ -6,13 +6,14 @@ namespace E_Lang.variables
 {
   public class EVChar : EVariable
   {
+    private static LLVMTypeRef type = LLVM.Int16Type();
     private LLVMValueRef value;
 
     public EVChar(LLVMHolder holder) : base(holder) { }
 
     public override LLVMTypeRef GetTypeRef()
     {
-      return LLVM.Int16Type();
+      return type;
     }
 
     public override EVariable Assign(EVariable assign)
@@ -22,17 +23,17 @@ namespace E_Lang.variables
       return this;
     }
 
-    protected override EVariable ConvertInternal(ETypeWord to)
+    protected override EVariable ConvertInternal(string to)
     {
       EVariable newvar = New(to, llvm);
       LLVMValueRef convert;
-      switch (to.Get())
+      switch (to)
       {
-        case EType.Double:
+        case "double":
           convert = LLVM.BuildUIToFP(llvm.GetBuilder(), Get(), newvar.GetTypeRef(), llvm.GetNewName());
           return newvar.Set(convert);
-        case EType.Int:
-        case EType.Boolean:
+        case "int":
+        case "boolean":
           convert = LLVM.BuildIntCast(llvm.GetBuilder(), Get(), newvar.GetTypeRef(), llvm.GetNewName());
           return newvar.Set(convert);
       }
@@ -41,7 +42,6 @@ namespace E_Lang.variables
 
     public override LLVMValueRef Get()
     {
-      if (value.IsUndef()) IsUndefined();
       return value;
     }
 
@@ -50,14 +50,14 @@ namespace E_Lang.variables
       if (setTo.GetType() == typeof(char))
       {
         char parsedValue = setTo;
-        value = LLVM.ConstInt(GetTypeRef(), parsedValue, false);
+        value = LLVM.ConstInt(type, parsedValue, false);
         return this;
 
       }
       else if (setTo.GetType() == typeof(LLVMValueRef))
       {
         LLVMValueRef parsedValue = setTo;
-        if (LLVM.TypeOf(parsedValue).Equals(GetTypeRef()))
+        if (LLVM.TypeOf(parsedValue).Equals(type))
         {
           value = parsedValue;
           return this;

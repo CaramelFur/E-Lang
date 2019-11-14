@@ -1,0 +1,5 @@
+create int: a := 2;
+
+a + 69 => a;
+
+putchar <- a;

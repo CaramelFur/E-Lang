@@ -8,13 +8,14 @@ namespace E_Lang.variables
 {
   public class EVInt : EVariable
   {
+    private static LLVMTypeRef type =  LLVM.Int32Type();
     private LLVMValueRef value;
 
     public EVInt(LLVMHolder holder) : base(holder) { }
 
     public override LLVMTypeRef GetTypeRef()
     {
-      return LLVM.Int32Type();
+      return type;
     }
 
     public override EVariable Assign(EVariable assign)
@@ -24,17 +25,17 @@ namespace E_Lang.variables
       return this;
     }
 
-    protected override EVariable ConvertInternal(ETypeWord to)
+    protected override EVariable ConvertInternal(string to)
     {
-      EVariable newvar = EVariable.New(to, llvm);
+      EVariable newvar = New(to, llvm);
       LLVMValueRef convert;
-      switch (to.Get())
+      switch (to)
       {
-        case EType.Double:
+        case "double":
           convert = LLVM.BuildUIToFP(llvm.GetBuilder(), Get(), newvar.GetTypeRef(), llvm.GetNewName());
           return newvar.Set(convert);
-        case EType.Char:
-        case EType.Boolean:
+        case "char":
+        case "boolean":
           convert = LLVM.BuildIntCast(llvm.GetBuilder(), Get(), newvar.GetTypeRef(), llvm.GetNewName());
           return newvar.Set(convert);
       }
@@ -44,7 +45,6 @@ namespace E_Lang.variables
 
     public override LLVMValueRef Get()
     {
-      if (value.IsUndef()) IsUndefined();
       return value;
     }
 
@@ -53,13 +53,13 @@ namespace E_Lang.variables
       if (setTo.GetType() == typeof(int))
       {
         int parsedValue = setTo;
-        value = LLVM.ConstInt(GetTypeRef(), (ulong)parsedValue, false);
+        value = LLVM.ConstInt(type, (ulong)parsedValue, false);
         return this;
       }
       else if (setTo.GetType() == typeof(LLVMValueRef))
       {
         LLVMValueRef parsedValue = setTo;
-        if (LLVM.TypeOf(parsedValue).Equals(GetTypeRef()))
+        if (LLVM.TypeOf(parsedValue).Equals(type))
         {
           value = parsedValue;
           return this;

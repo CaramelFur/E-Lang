@@ -1,11 +1,15 @@
+function (int: print) -> void : toterm := {
+  create int: ascii;
+
+  while (print != 0) := {
+    print + 48 => ascii;
+
+    putchar <- {ascii};
+
+    print / 10 => print;
+  }
+}
+
 create int: a := 70;
 
-69 => a;
-
-create pointer: b := #a;
-
-67 => a;
-
-syscall <- {1, 1, b, 1};
-
-0;
+putchar <- {a};

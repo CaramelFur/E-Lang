@@ -3,6 +3,8 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using E_Lang.scope;
+using E_Lang.variables;
+using E_Lang.types;
 
 namespace E_Lang.llvm
 {
@@ -27,6 +29,30 @@ namespace E_Lang.llvm
     {
       passManager = passRef;
       module = moduleRef;
+
+      GetScope().Set("putchar",
+        new EVFunction(this)
+        .Set(
+          new EVFunctionDefinition(
+            LLVM.AddFunction(
+              module,
+              "putchar",
+              LLVM.FunctionType(
+                LLVM.Int32Type(),
+                new LLVMTypeRef[] {
+                  LLVM.Int32Type()
+                },
+                false
+              )
+            ),
+            new EType[] {
+              new EType("int")
+            },
+            new EType("int")
+          )
+
+        )
+      );
     }
 
     public LLVMValueRef CreateMainFunc()

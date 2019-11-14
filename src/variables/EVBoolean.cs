@@ -5,13 +5,14 @@ namespace E_Lang.variables
 {
   public class EVBoolean : EVariable
   {
+    private static LLVMTypeRef type = LLVM.Int1Type();
     private LLVMValueRef value; // INT1
 
     public EVBoolean(LLVMHolder holder) : base(holder) { }
 
     public override LLVMTypeRef GetTypeRef()
     {
-      return LLVM.Int1Type();
+      return type;
     }
 
     public override EVariable Assign(EVariable assign)
@@ -23,7 +24,6 @@ namespace E_Lang.variables
 
     public override LLVMValueRef Get()
     {
-      if (value.IsUndef()) IsUndefined();
       return value;
     }
 
@@ -33,14 +33,14 @@ namespace E_Lang.variables
       if (setTo.GetType() == typeof(bool))
       {
         bool parsedValue = setTo;
-        value = LLVM.ConstInt(GetTypeRef(), (ulong)(parsedValue ? 1 : 0), false);
+        value = LLVM.ConstInt(type, (ulong)(parsedValue ? 1 : 0), false);
         return this;
 
       }
       else if (setTo.GetType() == typeof(LLVMValueRef))
       {
         LLVMValueRef parsedValue = setTo;
-        if (LLVM.TypeOf(parsedValue).Equals(GetTypeRef()))
+        if (LLVM.TypeOf(parsedValue).Equals(type))
         {
           value = parsedValue;
           return this;

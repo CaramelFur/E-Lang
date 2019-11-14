@@ -5,6 +5,8 @@ using E_Lang.variables;
 using E_Lang.llvm;
 using System;
 
+using LLVMSharp;
+
 namespace E_Lang.compiler
 {
   public class Compiler
@@ -35,7 +37,7 @@ namespace E_Lang.compiler
         
       }
 
-      llvm.Close(solved.Convert(EType.Int).Get());
+      llvm.Close(solved.Get());
       return llvm;
     }
   }

@@ -2,17 +2,19 @@ using E_Lang.types;
 using E_Lang.variables;
 using E_Lang.llvm;
 
+using LLVMSharp;
+
 namespace E_Lang.operations
 {
   // This operation creates a new function to be executed later
   public class EFunctionOperation : EOperation
   {
     private readonly ETypeNameKey[] arguments = { };
-    private readonly ETypeWord type;
+    private readonly EType type;
     private readonly EWord name;
     private readonly EProgram program;
 
-    public EFunctionOperation(EWord name, ETypeWord type, ETypeNameKey[] arguments, EOperation[] operations)
+    public EFunctionOperation(EWord name, EType type, ETypeNameKey[] arguments, EOperation[] operations)
     {
       this.name = name;
       this.type = type;
@@ -23,6 +25,8 @@ namespace E_Lang.operations
 
     public override EVariable Exec(LLVMHolder llvm)
     {
+
+
       return new EVVoid(llvm);
     }
 

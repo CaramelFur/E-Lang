@@ -3,7 +3,8 @@ using System.Linq;
 using E_Lang.types;
 using E_Lang.llvm;
 using E_Lang.variables;
-using E_Lang.functions;
+
+using LLVMSharp;
 
 namespace E_Lang.solvable
 {
@@ -20,8 +21,12 @@ namespace E_Lang.solvable
 
     public override EVariable Solve(LLVMHolder llvm)
     {
+      EVariable function = llvm.GetScope().Get(callFunc.ToString());
+      if (!(function is EVFunction)) throw new ELangException(callFunc + " is not a function");
+
       EVariable[] solved = arguments.Select(a => a.Solve(llvm)).ToArray();
-      return EFunctions.ExecFunc(llvm, callFunc.ToString(), solved);
+
+      return ((EVFunction)function).Call(solved);
     }
 
     public override string ToString(bool detailed)

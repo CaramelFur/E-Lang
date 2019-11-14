@@ -35,11 +35,11 @@ namespace E_Lang.solvable
   public class ESOSimpleTypeObject
   {
     private readonly ESOSimpleType type;
-    private readonly EType? input = null;
+    private readonly EType input = null;
     private readonly EType output;
     private readonly CalcFunction calc;
 
-    private ESOSimpleTypeObject(ESOSimpleType type, EType? input, EType output, CalcFunction calc)
+    private ESOSimpleTypeObject(ESOSimpleType type, EType input, EType output, CalcFunction calc)
     {
       this.type = type;
       this.calc = calc;
@@ -53,8 +53,8 @@ namespace E_Lang.solvable
       EVariable bConv = b;
       if (input != null)
       {
-        aConv = a.Convert(input.Value);
-        bConv = b.Convert(input.Value);
+        aConv = a.Convert(input.Get());
+        bConv = b.Convert(input.Get());
       }
 
       LLVMValueRef calculated = calc(llvm, aConv.Get(), bConv.Get());
@@ -67,7 +67,7 @@ namespace E_Lang.solvable
       EVariable aConv = a;
       if (input != null)
       {
-        aConv = a.Convert(input.Value);
+        aConv = a.Convert(input.Get());
       }
 
       LLVMValueRef calculated = calc(llvm, aConv.Get(), null);
@@ -81,45 +81,45 @@ namespace E_Lang.solvable
     {
       Dictionary<ESOSimpleType, ESOSimpleTypeObject> temp = new Dictionary<ESOSimpleType, ESOSimpleTypeObject>();
 
-      Add(temp, ESOSimpleType.Add, EType.Double, EType.Double, (llvm, a, b)
+      Add(temp, ESOSimpleType.Add, "double", "double", (llvm, a, b)
         => LLVM.BuildFAdd(llvm.GetBuilder(), a, b, llvm.GetNewName()));
-      Add(temp, ESOSimpleType.Subtract, EType.Double, EType.Double, (llvm, a, b)
+      Add(temp, ESOSimpleType.Subtract, "double", "double", (llvm, a, b)
         => LLVM.BuildFSub(llvm.GetBuilder(), a, b, llvm.GetNewName()));
-      Add(temp, ESOSimpleType.Multiply, EType.Double, EType.Double, (llvm, a, b)
+      Add(temp, ESOSimpleType.Multiply, "double", "double", (llvm, a, b)
         => LLVM.BuildFMul(llvm.GetBuilder(), a, b, llvm.GetNewName()));
-      Add(temp, ESOSimpleType.Divide, EType.Double, EType.Double, (llvm, a, b)
+      Add(temp, ESOSimpleType.Divide, "double", "double", (llvm, a, b)
         => LLVM.BuildFDiv(llvm.GetBuilder(), a, b, llvm.GetNewName()));
-      Add(temp, ESOSimpleType.Power, EType.Double, EType.Double, (llvm, a, b)
+      Add(temp, ESOSimpleType.Power, "double", "double", (llvm, a, b)
         => LLVM.BuildFMul(llvm.GetBuilder(), a, b, llvm.GetNewName()));
-      Add(temp, ESOSimpleType.Modulo, EType.Double, EType.Double, (llvm, a, b)
+      Add(temp, ESOSimpleType.Modulo, "double", "double", (llvm, a, b)
         => LLVM.BuildFMul(llvm.GetBuilder(), a, b, llvm.GetNewName()));
 
-      Add(temp, ESOSimpleType.AndAlso, null, EType.Boolean, (llvm, a, b)
+      Add(temp, ESOSimpleType.AndAlso, null, "boolean", (llvm, a, b)
         => LLVM.BuildAnd(llvm.GetBuilder(), a.Get(), b.Get(), llvm.GetNewName()));
-      Add(temp, ESOSimpleType.OrElse, null, EType.Boolean, (llvm, a, b)
+      Add(temp, ESOSimpleType.OrElse, null, "boolean", (llvm, a, b)
         => LLVM.BuildOr(llvm.GetBuilder(), a.Get(), b.Get(), llvm.GetNewName()));
 
-      Add(temp, ESOSimpleType.Equal, EType.Double, EType.Boolean, (llvm, a, b)
+      Add(temp, ESOSimpleType.Equal, "double", "boolean", (llvm, a, b)
         => LLVM.BuildFCmp(llvm.GetBuilder(), LLVMRealPredicate.LLVMRealOEQ, a.Get(), b.Get(), llvm.GetNewName()));
-      Add(temp, ESOSimpleType.NotEqual, EType.Double, EType.Boolean, (llvm, a, b)
+      Add(temp, ESOSimpleType.NotEqual, "double", "boolean", (llvm, a, b)
         => LLVM.BuildFCmp(llvm.GetBuilder(), LLVMRealPredicate.LLVMRealONE, a.Get(), b.Get(), llvm.GetNewName()));
 
-      Add(temp, ESOSimpleType.GreaterThanOrEqual, EType.Double, EType.Boolean, (llvm, a, b)
+      Add(temp, ESOSimpleType.GreaterThanOrEqual, "double", "boolean", (llvm, a, b)
         => LLVM.BuildFCmp(llvm.GetBuilder(), LLVMRealPredicate.LLVMRealOGE, a.Get(), b.Get(), llvm.GetNewName()));
-      Add(temp, ESOSimpleType.LessThanOrEqual, EType.Double, EType.Boolean, (llvm, a, b)
+      Add(temp, ESOSimpleType.LessThanOrEqual, "double", "boolean", (llvm, a, b)
         => LLVM.BuildFCmp(llvm.GetBuilder(), LLVMRealPredicate.LLVMRealOLE, a.Get(), b.Get(), llvm.GetNewName()));
-      Add(temp, ESOSimpleType.GreaterThan, EType.Double, EType.Boolean, (llvm, a, b)
+      Add(temp, ESOSimpleType.GreaterThan, "double", "boolean", (llvm, a, b)
         => LLVM.BuildFCmp(llvm.GetBuilder(), LLVMRealPredicate.LLVMRealOGT, a.Get(), b.Get(), llvm.GetNewName()));
-      Add(temp, ESOSimpleType.LessThan, EType.Double, EType.Boolean, (llvm, a, b)
+      Add(temp, ESOSimpleType.LessThan, "double", "boolean", (llvm, a, b)
         => LLVM.BuildFCmp(llvm.GetBuilder(), LLVMRealPredicate.LLVMRealOLE, a.Get(), b.Get(), llvm.GetNewName()));
 
       return temp;
     }
 
     private static void Add(Dictionary<ESOSimpleType, ESOSimpleTypeObject> temp,
-      ESOSimpleType type, EType? input, EType output, CalcFunction calc)
+      ESOSimpleType type, string input, string output, CalcFunction calc)
     {
-      temp.Add(type, new ESOSimpleTypeObject(type, input, output, calc));
+      temp.Add(type, new ESOSimpleTypeObject(type, input != null ? new EType(input) : null, new EType(output), calc));
     }
 
     public static EVariable Calc(LLVMHolder llvm, ESOSimpleType type, EVariable a)

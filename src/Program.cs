@@ -27,6 +27,7 @@ namespace E_Lang
       if (args.Length == 0)
       {
         Console.WriteLine("Please supply a file");
+
         /*Interpreter interpreter = new Interpreter();
         while (true)
         {
@@ -55,13 +56,15 @@ namespace E_Lang
         Console.WriteLine("Parsing...");
         EProgram program = readProgramAST(args[0]);
 
-        //Console.WriteLine(program);
+        Console.WriteLine(program);
 
         Console.WriteLine("Transpiling...");
         LLVMHolder llvm = LLVMHolder.Create(name);
         Compiler compiler = new Compiler(llvm);
 
         compiler.Compile(program);
+
+        Console.WriteLine("Verifying...");
 
         llvm.Verify();
         llvm.Print();

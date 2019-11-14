@@ -1,16 +1,17 @@
 namespace E_Lang.types
 {
-  public class EWord
+  public class EType
   {
     private readonly string word;
 
-    public EWord(string word)
+    public EType(string word)
     {
       this.word = word;
     }
 
-    public string Get(){
-      if(word == null) throw new ELangException("Tried to access empty word");
+    public string Get()
+    {
+      if (word == null) throw new ELangException("Tried to access empty type");
       return word;
     }
 

@@ -5,6 +5,7 @@ using Sprache;
 using E_Lang.types;
 using E_Lang.operations;
 using E_Lang.solvable;
+using E_Lang.variables;
 
 namespace E_Lang.lexer
 {
@@ -57,42 +58,26 @@ namespace E_Lang.lexer
     // Comment parser
     static readonly CommentParser Comment = new CommentParser("//", "/*", "*/", "\n");
 
-    static Parser<EType> ParseETypeFactory()
+    static Func<Parser<EType>> etypegenerator = () =>
     {
-      EType[] types = Enum.GetValues(typeof(EType)).Cast<EType>().ToArray();
+      string[] types = EVariable.GetTypes();
 
-      Parser<EType> buffer = null;
+      var typeparsers = Parse.String(types[0]);
 
-      foreach (EType type in types)
+      for (int i = 1; i < types.Length; i++)
       {
-        string stringType = type.ToString().ToLower();
-
-        if (buffer == null)
-        {
-          buffer = Parse.String(stringType).Select((s) => type);
-        }
-        else
-        {
-          buffer = buffer.Or(
-            Parse.String(stringType).Select((s) => type)
-          );
-        }
+        typeparsers = typeparsers.Or(Parse.String(types[i]));
       }
 
-      return buffer;
-    }
+      var stringparsers = typeparsers.Text();
 
-    public static readonly Parser<EType> ParseEType = ParseETypeFactory();
+      return (
+        from str in stringparsers
+        select new EType(str)
+      ).Named("EType");
+    };
 
-    // Parser for types that you assign and create
-    static readonly Parser<ETypeWord> CreateableType =
-      (
-        from typeName in ParseEType
-        select new ETypeWord(typeName)
-      ).Named("Createable Type");
-
-    // Parser for all types
-    static readonly Parser<ETypeWord> Type = CreateableType.Named("EType"); //.Or(UsableType);
+    public static readonly Parser<EType> ParseEType = etypegenerator();
 
     // A reference to the solvable in ESolvableParser.cs
     static readonly Parser<ESolvable> Solvable = Parse.Ref(() => ESolvableParser.ESolvable);
@@ -114,7 +99,7 @@ namespace E_Lang.lexer
     // Parse a type name key, this is a type with a colon and then a name
     static readonly Parser<ETypeNameKey> TypeNameKey =
       (
-        from type in Type
+        from type in ParseEType
         from colon in Colon
         from name in Word
         select new ETypeNameKey(name, type)
@@ -142,7 +127,7 @@ namespace E_Lang.lexer
       (
         from keyword in Parse.String("create")
         from space in Space
-        from type in CreateableType
+        from type in ParseEType
         from colon in Parse.Token(Parse.Char(':'))
         from names in Word.DelimitedBy(Comma)
         from assign in (
@@ -176,7 +161,7 @@ namespace E_Lang.lexer
       ).Named("If Operation");
 
     // Parses a while statement, this is a looping if statement
-    public static readonly Parser<EWhileOperation> WhileOperation =
+    static readonly Parser<EWhileOperation> WhileOperation =
       (
         from keyword in Parse.String("while")
         from solvable in Solvable
@@ -186,12 +171,12 @@ namespace E_Lang.lexer
       ).Named("While Operation");
 
     // Parses a function operation, this creates a new function in the current scope
-    static readonly Parser<EFunctionOperation> FunctionOperation =
+    public static readonly Parser<EFunctionOperation> FunctionOperation =
       (
         from keyword in Parse.String("function")
         from arguments in TypeNameKeys
         from rightarrow in ArrowRight
-        from type in CreateableType
+        from type in ParseEType
         from colon in Colon
         from name in Word
         from set in ColonEquals

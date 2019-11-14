@@ -10,7 +10,6 @@ namespace E_Lang.variables
 
     public override EVariable Assign(EVariable assign)
     {
-      assign.Convert(GetEType());
       throw new ELangException("Shoulnt have thrown this");
     }
   }
