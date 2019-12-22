@@ -8,64 +8,32 @@ namespace E_Lang.variables
 {
   public class EVInt : EVariable
   {
-    private static LLVMTypeRef type =  LLVM.Int32Type();
-    private LLVMValueRef value;
+    public EVInt(LLVMHolder holder) :
+    base(holder, LLVM.Int32Type(), "int")
+    { }
 
-    public EVInt(LLVMHolder holder) : base(holder) { }
-
-    public override LLVMTypeRef GetTypeRef()
+    protected override LLVMValueRef? ParseInternallyFromToThis(LLVMValueRef from, EType type)
     {
-      return type;
-    }
-
-    public override EVariable Assign(EVariable assign)
-    {
-      EVInt converted = (EVInt)assign.Convert(GetEType());
-      value = converted.Get();
-      return this;
-    }
-
-    protected override EVariable ConvertInternal(string to)
-    {
-      EVariable newvar = New(to, llvm);
       LLVMValueRef convert;
-      switch (to)
+      switch (type.Get())
       {
         case "double":
-          convert = LLVM.BuildUIToFP(llvm.GetBuilder(), Get(), newvar.GetTypeRef(), llvm.GetNewName());
-          return newvar.Set(convert);
+          convert = LLVM.BuildFPToUI(llvm.GetBuilder(), from, GetTypeRef(), llvm.GetNewName());
+          return convert;
         case "char":
         case "boolean":
-          convert = LLVM.BuildIntCast(llvm.GetBuilder(), Get(), newvar.GetTypeRef(), llvm.GetNewName());
-          return newvar.Set(convert);
+          convert = LLVM.BuildIntCast(llvm.GetBuilder(), from, GetTypeRef(), llvm.GetNewName());
+          return convert;
       }
 
       return null;
     }
 
-    public override LLVMValueRef Get()
+    public EVInt InsertRaw(int value)
     {
-      return value;
-    }
-
-    public override EVariable Set(dynamic setTo)
-    {
-      if (setTo.GetType() == typeof(int))
-      {
-        int parsedValue = setTo;
-        value = LLVM.ConstInt(type, (ulong)parsedValue, false);
-        return this;
-      }
-      else if (setTo.GetType() == typeof(LLVMValueRef))
-      {
-        LLVMValueRef parsedValue = setTo;
-        if (LLVM.TypeOf(parsedValue).Equals(type))
-        {
-          value = parsedValue;
-          return this;
-        }
-      }
-      throw new ELangException("EVInt did not receive an int");
+      LLVMValueRef newintval = LLVM.ConstInt(GetTypeRef(), (ulong)value, false);
+      this.Set(newintval);
+      return this;
     }
 
   }

@@ -7,63 +7,24 @@ namespace E_Lang.variables
 {
   public class EVDouble : EVariable
   {
-    private static LLVMTypeRef type = LLVM.DoubleType();
-    private LLVMValueRef value;
+    public EVDouble(LLVMHolder holder) :
+    base(holder, LLVM.DoubleType(), "double")
+    { }
 
-    public EVDouble(LLVMHolder holder) : base(holder) { }
-
-    public override LLVMTypeRef GetTypeRef()
+    protected override LLVMValueRef? ParseInternallyFromToThis(LLVMValueRef from, EType type)
     {
-      return type;
-    }
-
-    public override EVariable Assign(EVariable assign)
-    {
-      EVDouble converted = (EVDouble)assign.Convert(GetEType());
-      value = converted.Get();
-      return this;
-    }
-
-    protected override EVariable ConvertInternal(string to)
-    {
-      EVariable newvar = New(to, llvm);
       LLVMValueRef convert;
-      switch (to)
+      switch (type.Get())
       {
-        case "int":
         case "char":
         case "boolean":
-          convert = LLVM.BuildFPToUI(llvm.GetBuilder(), Get(), newvar.GetTypeRef(), llvm.GetNewName());
-          return newvar.Set(convert);
+        case "int":
+          string name = llvm.GetNewName();
+          convert = LLVM.BuildUIToFP(llvm.GetBuilder(), from, GetTypeRef(), name);
+          return convert;
       }
 
       return null;
-    }
-
-    public override LLVMValueRef Get()
-    {
-      return value;
-    }
-
-    public override EVariable Set(dynamic setTo)
-    {
-      if (setTo.GetType() == typeof(decimal))
-      {
-        decimal parsedValue = setTo;
-        value = LLVM.ConstReal(type, (double)parsedValue);
-        return this;
-
-      }
-      else if (setTo.GetType() == typeof(LLVMValueRef))
-      {
-        LLVMValueRef parsedValue = setTo;
-        if (LLVM.TypeOf(parsedValue).Equals(type))
-        {
-          value = parsedValue;
-          return this;
-        }
-      }
-      throw new ELangException("EVDouble did not receive a decimal");
     }
   }
 }

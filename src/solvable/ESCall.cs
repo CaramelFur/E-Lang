@@ -21,12 +21,13 @@ namespace E_Lang.solvable
 
     public override EVariable Solve(LLVMHolder llvm)
     {
-      EVariable function = llvm.GetScope().Get(callFunc.ToString());
+      throw new ELangException("nononono");
+      /*EVariable function = llvm.GetScope().Get(callFunc.ToString());
       if (!(function is EVFunction)) throw new ELangException(callFunc + " is not a function");
 
       EVariable[] solved = arguments.Select(a => a.Solve(llvm)).ToArray();
 
-      return ((EVFunction)function).Call(solved);
+      return ((EVFunction)function).Call(solved);*/
     }
 
     public override string ToString(bool detailed)

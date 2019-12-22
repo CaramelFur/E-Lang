@@ -32,7 +32,7 @@ namespace E_Lang.llvm
       passManager = passRef;
       module = moduleRef;
 
-      GetScope().Set("putchar",
+      /*GetScope().Set("putchar",
         new EVFunction(this)
         .Set(
           new EVFunctionDefinition(
@@ -74,7 +74,7 @@ namespace E_Lang.llvm
           )
 
         )
-      );
+      );*/
     }
 
     public LLVMValueRef CreateMainFunc()

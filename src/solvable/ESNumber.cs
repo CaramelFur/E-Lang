@@ -9,20 +9,21 @@ namespace E_Lang.solvable
 
     public ESNumber(decimal number)
     {
-      this.number = number;
+      this.number = (int)number;
     }
 
     public override EVariable Solve(LLVMHolder llvm)
     {
-      if (IsInteger())
+      /*if (true || IsInteger())
       {
         return new EVInt(llvm).Set((int)number);
       }
       else
       {
         return new EVDouble(llvm).Set(number);
-      }
+      }*/
 
+      return new EVInt(llvm).InsertRaw((int)number);
     }
 
     public override string ToString(bool detailed)

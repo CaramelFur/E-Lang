@@ -1,53 +1,37 @@
 using LLVMSharp;
 using E_Lang.llvm;
+using E_Lang.types;
 
 namespace E_Lang.variables
 {
   public class EVBoolean : EVariable
   {
-    private static LLVMTypeRef type = LLVM.Int1Type();
-    private LLVMValueRef value; // INT1
+    public EVBoolean(LLVMHolder holder) :
+    base(holder, LLVM.Int1Type(), "boolean")
+    { }
 
-    public EVBoolean(LLVMHolder holder) : base(holder) { }
-
-    public override LLVMTypeRef GetTypeRef()
+    protected override LLVMValueRef? ParseInternallyFromToThis(LLVMValueRef from, EType type)
     {
-      return type;
+      LLVMValueRef convert;
+      switch (type.Get())
+      {
+        case "double":
+          convert = LLVM.BuildFPToUI(llvm.GetBuilder(), from, GetTypeRef(), llvm.GetNewName());
+          return convert;
+        case "char":
+        case "int":
+          convert = LLVM.BuildIntCast(llvm.GetBuilder(), from, GetTypeRef(), llvm.GetNewName());
+          return convert;
+      }
+
+      return null;
     }
 
-    public override EVariable Assign(EVariable assign)
+    public EVBoolean InsertRaw(bool value)
     {
-      EVBoolean converted = (EVBoolean)assign.Convert(GetEType());
-      value = converted.Get();
+      LLVMValueRef newintval = LLVM.ConstInt(GetTypeRef(), (ulong)(value ? 1 : 0), false);
+      this.Set(newintval);
       return this;
-    }
-
-    public override LLVMValueRef Get()
-    {
-      return value;
-    }
-
-    public override EVariable Set(dynamic setTo)
-    {
-
-      if (setTo.GetType() == typeof(bool))
-      {
-        bool parsedValue = setTo;
-        value = LLVM.ConstInt(type, (ulong)(parsedValue ? 1 : 0), false);
-        return this;
-
-      }
-      else if (setTo.GetType() == typeof(LLVMValueRef))
-      {
-        LLVMValueRef parsedValue = setTo;
-        if (LLVM.TypeOf(parsedValue).Equals(type))
-        {
-          value = parsedValue;
-          return this;
-        }
-      }
-
-      throw new ELangException("EVBoolean did not receive a bool");
     }
   }
 }

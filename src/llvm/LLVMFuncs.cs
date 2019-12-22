@@ -8,7 +8,7 @@ namespace E_Lang.llvm
     public static LLVMValueRef createMainFunction(LLVMModuleRef module)
     {
       LLVMTypeRef[] param_types = { };
-      LLVMTypeRef main_func_type = LLVM.FunctionType(LLVM.Int32Type(), param_types, false);
+      LLVMTypeRef main_func_type = LLVM.FunctionType(LLVM.Int8Type(), param_types, false);
 
       LLVMValueRef main = LLVM.AddFunction(module, "main", main_func_type);
       return main;

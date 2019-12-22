@@ -12,7 +12,7 @@ namespace E_Lang.solvable
 
     public override EVariable Solve(LLVMHolder llvm, EVariable first, EVariable second)
     {
-      return first.Convert(second.GetEType());
+      return second.Assign(first);
     }
   }
 

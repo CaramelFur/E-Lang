@@ -32,7 +32,7 @@ namespace E_Lang.operations
     public override EVariable Exec(LLVMHolder llvm)
     {
 
-      LLVMValueRef solved = check.Solve(llvm).Get();
+      LLVMValueRef solved = EVariable.GetRawValueFromVariable(check.Solve(llvm));
       LLVMBuilderRef mainBuilder = llvm.GetBuilder();
       // build 
       LLVMBasicBlockRef endBlock = llvm.CreateNewBlock();

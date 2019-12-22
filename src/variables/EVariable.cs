@@ -10,19 +10,10 @@ using LLVMSharp;
 
 namespace E_Lang.variables
 {
-  public abstract class EVariable
+
+  // All the static parts of EVariable
+  public abstract class __EVariableStatic
   {
-    protected LLVMHolder llvm;
-
-    public EVariable(LLVMHolder holder)
-    {
-      llvm = holder;
-    }
-
-    public virtual LLVMTypeRef GetTypeRef()
-    {
-      throw new ELangException("Cannot get type from abstract class");
-    }
 
     private static readonly Dictionary<string, Type> types = new Dictionary<string, Type> {
       { "int", typeof(EVInt) },
@@ -30,10 +21,11 @@ namespace E_Lang.variables
       { "boolean", typeof(EVBoolean) },
       { "char", typeof(EVChar)},
       { "void", typeof(EVVoid) },
-      { "array", typeof(EVPointer) }
+      //{ "array", typeof(EVPointer) }
     };
 
-    public static string[] GetTypes(){
+    public static string[] GetTypes()
+    {
       return types.Keys.ToArray();
     }
 
@@ -54,24 +46,105 @@ namespace E_Lang.variables
       string type = types.Where((pair) => pair.Value == t).First().Key;
       return new EType(type);
     }
+  }
+
+  public abstract class __EVariableEmpty : __EVariableStatic
+  {
+    protected virtual LLVMValueRef? ConvertThisInternallyTo(string to)
+    {
+      return null;
+    }
+
+    protected virtual LLVMValueRef? ParseInternallyFromToThis(LLVMValueRef from, EType type)
+    {
+      return null;
+    }
 
     public EType GetEType()
     {
-      string type = types.Where((pair) => pair.Value == GetType()).First().Key;
-      return new EType(type);
+      return GetEType(GetType());
     }
 
-    public EVariable Convert(EType to)
+    protected dynamic CannotConvert(string type)
     {
-      return Convert(to.Get());
+      throw new ELangException("Cannot convert " + GetEType() + " to " + type);
     }
 
-    public EVariable Convert(string to)
+    protected dynamic CannotConvertFrom(EType type)
     {
-      EVariable tryConvert = ConvertInternal(to);
-      if (tryConvert != null) return tryConvert;
-      if (GetEType().Get() == to) return this;
+      throw new ELangException("Cannot convert from " + type + " to " + GetEType());
+    }
+
+    protected dynamic IsUndefined()
+    {
+      throw new ELangException("Variable is undefined");
+    }
+  }
+
+  public abstract class EVariable : __EVariableEmpty
+  {
+    protected LLVMHolder llvm = null;
+    protected LLVMTypeRef type;
+    protected EType etype = null;
+    protected LLVMValueRef valuePtr;
+
+    // Initialize a new variable by allocating some space for the variable
+    protected EVariable(LLVMHolder holder, LLVMTypeRef typeRef, string typeId, bool skipAlloc = false)
+    {
+      if (typeId == null || typeId == "") throw new ELangException("The typeid cannot be empty");
+
+      llvm = holder;
+      type = typeRef;
+      etype = new EType(typeId);
+
+      if (!skipAlloc)
+      {
+        valuePtr = LLVM.BuildAlloca(llvm.GetBuilder(), type, llvm.GetNewName());
+      }
+    }
+
+    // Get the LLVM type of this variable
+    public LLVMTypeRef GetTypeRef()
+    {
+      return type;
+    }
+
+    // Convert this variable to another type
+    private LLVMValueRef Convert(EType toType)
+    {
+      string to = toType.Get();
+      LLVMValueRef? tryConvert = ConvertThisInternallyTo(to);
+      if (tryConvert.HasValue) return tryConvert.Value;
+      if (GetEType().Get() == to) return LLVM.BuildLoad(llvm.GetBuilder(), valuePtr, llvm.GetNewName());
       return CannotConvert(to);
+    }
+
+    private LLVMValueRef Parse(LLVMValueRef valueRef, EType type)
+    {
+      LLVMValueRef? tryInternalParse = ParseInternallyFromToThis(valueRef, type);
+      if (tryInternalParse.HasValue)
+        return tryInternalParse.Value;
+      if (GetEType().Get() == type.Get()) return valueRef;
+      return CannotConvertFrom(type);
+    }
+
+    // Set this variable to the parsed variable
+    public EVariable Assign(EVariable assign)
+    {
+      LLVMValueRef converted = Parse(assign.Get(), assign.GetEType());
+      return Set(converted);
+    }
+
+    protected virtual EVariable Set(LLVMValueRef value)
+    {
+      if (value.TypeOf().ToString() != GetTypeRef().ToString())
+      {
+        throw new ELangException("You tried to set a variable of type " + GetTypeRef() +
+        " with a value of type " + value.TypeOf());
+      }
+
+      LLVM.BuildStore(llvm.GetBuilder(), value, valuePtr);
+      return this;
     }
 
     public EVariable Clone()
@@ -79,34 +152,20 @@ namespace E_Lang.variables
       return New(GetEType(), llvm).Assign(this);
     }
 
-    public virtual EVariable Assign(EVariable assign)
+    protected virtual LLVMValueRef Get()
     {
-      throw new ELangException("Cannot assign to abstract class");
+      return LLVM.BuildLoad(llvm.GetBuilder(), valuePtr, llvm.GetNewName());
     }
 
-    protected virtual EVariable ConvertInternal(string to)
+    public static LLVMValueRef GetRawValueFromVariable(EVariable variable)
     {
-      return null;
+      return variable.Get();
     }
 
-    public virtual LLVMValueRef Get()
+    public static EVariable PutRawValueIntVariable(EVariable variable, LLVMValueRef value)
     {
-      throw new ELangException("Cannot get from abstract class");
-    }
-
-    public virtual EVariable Set(dynamic setto)
-    {
-      throw new ELangException("Cannot set in abstract class");
-    }
-
-    protected EVariable CannotConvert(string type)
-    {
-      throw new ELangException("Cannot convert " + GetEType() + " to " + type);
-    }
-
-    protected EVariable IsUndefined()
-    {
-      throw new ELangException("Variable is undefined");
+      variable.Set(value);
+      return variable;
     }
   }
 }

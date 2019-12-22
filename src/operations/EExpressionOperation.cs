@@ -22,7 +22,7 @@ namespace E_Lang.operations
 
     public override string ToString()
     {
-      return "EExpressionOperation{" + expression + "}";
+      return "EExpressionOperation{" + expression.ToString(true) + "}";
     }
   }
 

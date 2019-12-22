@@ -12,7 +12,7 @@ namespace E_Lang.solvable
 
     public override EVariable Solve(LLVMHolder llvm, EVariable first)
     {
-      return new EVPointer(llvm).Set(first);
+      throw new ELangException("fuck u");
     }
   }
 

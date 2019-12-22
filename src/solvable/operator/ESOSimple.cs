@@ -34,6 +34,7 @@ namespace E_Lang.solvable
 
   public class ESOSimpleTypeObject
   {
+    // This class has an instance for every simple operation (See ESOSimpleType)
     private readonly ESOSimpleType type;
     private readonly EType input = null;
     private readonly EType output;
@@ -53,13 +54,22 @@ namespace E_Lang.solvable
       EVariable bConv = b;
       if (input != null)
       {
-        aConv = a.Convert(input.Get());
-        bConv = b.Convert(input.Get());
+        aConv = EVariable.New(input, llvm).Assign(a);
+        bConv = EVariable.New(input, llvm).Assign(b);
       }
 
-      LLVMValueRef calculated = calc(llvm, aConv.Get(), bConv.Get());
+      var aa = EVariable.GetRawValueFromVariable(aConv);
+      Console.WriteLine("aaa " + aa.PrintValueToString());
 
-      return EVariable.New(output, llvm).Set(calculated);
+      LLVMValueRef calculated = calc(
+        llvm,
+        aa,
+        EVariable.GetRawValueFromVariable(bConv)
+      );
+
+
+      EVariable outvar = EVariable.New(output, llvm);
+      return EVariable.PutRawValueIntVariable(outvar, calculated);
     }
 
     private EVariable Calc(LLVMHolder llvm, EVariable a)
@@ -67,12 +77,13 @@ namespace E_Lang.solvable
       EVariable aConv = a;
       if (input != null)
       {
-        aConv = a.Convert(input.Get());
+        aConv = EVariable.New(input, llvm).Assign(a);
       }
 
-      LLVMValueRef calculated = calc(llvm, aConv.Get(), null);
+      LLVMValueRef calculated = calc(llvm, EVariable.GetRawValueFromVariable(aConv), null);
 
-      return EVariable.New(output, llvm).Set(calculated);
+      EVariable outvar = EVariable.New(output, llvm);
+      return EVariable.PutRawValueIntVariable(outvar, calculated);
     }
 
     private static readonly Dictionary<ESOSimpleType, ESOSimpleTypeObject> dict = Populate();
@@ -116,6 +127,7 @@ namespace E_Lang.solvable
       return temp;
     }
 
+    // Add a esosimpletypeobject to a dictionary
     private static void Add(Dictionary<ESOSimpleType, ESOSimpleTypeObject> temp,
       ESOSimpleType type, string input, string output, CalcFunction calc)
     {

@@ -14,7 +14,7 @@ namespace E_Lang.solvable
 
     public override EVariable Solve(LLVMHolder llvm)
     {
-      return new EVBoolean(llvm).Set(boolean);
+      return new EVBoolean(llvm).InsertRaw(boolean);
     }
 
     public override string ToString(bool detailed)

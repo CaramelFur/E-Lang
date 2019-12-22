@@ -38,7 +38,7 @@ namespace E_Lang.operations
       LLVMBasicBlockRef repeatBlock = llvm.CreateNewBlock();
 
       LLVMBasicBlockRef compareBlock = llvm.CreateNewBlock();
-      LLVMValueRef solved = check.Solve(llvm).Get();
+      LLVMValueRef solved = EVariable.GetRawValueFromVariable(check.Solve(llvm));
       LLVM.BuildCondBr(llvm.GetBuilder(), solved, repeatBlock, endBlock);
       llvm.MoveBackABlock();
 

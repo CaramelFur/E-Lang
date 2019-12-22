@@ -56,7 +56,7 @@ namespace E_Lang
         Console.WriteLine("Parsing...");
         EProgram program = readProgramAST(args[0]);
 
-        Console.WriteLine(program);
+        Console.WriteLine(program.ToString());
 
         Console.WriteLine("Transpiling...");
         LLVMHolder llvm = LLVMHolder.Create(name);

@@ -28,22 +28,24 @@ namespace E_Lang.compiler
     {
       llvm.CreateMainFunc();
 
+      EVariable toReturn = new EVChar(llvm);
       EVariable solved = SmallCompile(program, llvm);
+      if (solved != null) toReturn = toReturn.Assign(solved);
 
-      llvm.Close(solved.Get());
+      llvm.Close(EVariable.GetRawValueFromVariable(toReturn));
       return llvm;
     }
 
     public static EVariable SmallCompile(EProgram program, LLVMHolder llvm)
     {
-      EVariable solved = new EVVoid(llvm);
+      EVariable solved = null;
       // Loop over every instruction and return the last value
       EOperation[] operations = program.GetOperations();
       foreach (EOperation operation in operations)
       {
         solved = operation.Exec(llvm);
-
       }
+
       return solved;
     }
   }
