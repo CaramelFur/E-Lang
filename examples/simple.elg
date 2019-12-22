@@ -1,8 +1,8 @@
-create int: a := 10;
+create int: a := getchar <- {};
 
-while (a != 0) := {
-  a - 1 => a;
-  putchar <- 69;
+while (a != 69) := {
+  putchar <- a;
+  getchar <- {} => a;
 }
 
 a;
